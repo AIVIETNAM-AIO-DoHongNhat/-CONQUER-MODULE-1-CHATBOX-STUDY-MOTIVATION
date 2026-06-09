@@ -1,0 +1,22 @@
+# Core dependencies cho AI Training
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.2.0
+
+# Deep Learning Frameworks (PyTorch làm ví dụ mặc định)
+torch>=2.0.0
+torchvision>=0.15.0
+
+# NLP Tools (nếu trợ lý AI cần xử lý ngôn ngữ tự nhiên)
+transformers>=4.30.0
+spacy>=3.5.0
+
+# Utilities & Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+jupyter>=1.0.0
+tqdm>=4.65.0
+pyyaml>=6.0
+
+# MLOps & Experiment Tracking
+mlflow>=2.3.0
