@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "authentication",
     "rooms",
     "gamify",
-    "sessions",
+    "session",
     "todos",
 
     # external apps
@@ -157,7 +157,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-# AUTH_USER_MODEL = 'authentication.CustomUser'
+AUTH_USER_MODEL = 'authentication.CustomUser'
 
 ACCESS_TOKEN_LIFETIME = int(os.getenv("ACCESS_TOKEN_LIFETIME"))
 REFRESH_TOKEN_LIFETIME = int(os.getenv("REFRESH_TOKEN_LIFETIME"))
