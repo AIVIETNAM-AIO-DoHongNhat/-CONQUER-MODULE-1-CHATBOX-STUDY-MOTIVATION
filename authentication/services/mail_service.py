@@ -33,7 +33,7 @@ class MailService:
                 "action_description": action_description,
                 "otp_code": otp,
                 "expiry_minutes": expiry_minutes,
-                "project_name": "OwlVerse",
+                "project_name": "AIOtivation",
                 "app_logo": settings.APP_LOGO,
             }
 

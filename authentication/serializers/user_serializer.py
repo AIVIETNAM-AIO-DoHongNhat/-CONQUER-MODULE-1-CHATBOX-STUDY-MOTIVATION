@@ -16,11 +16,12 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'full_name',
             'phone_number',
-            'profile_picture')
-        extra_kwargs = {
-            'id': {'read_only': True},
-            'email': {'read_only': True},
-            'full_name': {'read_only': True},
-            'phone_number': {'read_only': True},
-            'profile_picture': {'read_only': True},
-        }
+            'profile_picture',
+            'is_verified',
+            'level',
+            'xp',
+            'current_streak',
+            'longest_streak',
+            'created_at',
+        )
+        read_only_fields = fields
