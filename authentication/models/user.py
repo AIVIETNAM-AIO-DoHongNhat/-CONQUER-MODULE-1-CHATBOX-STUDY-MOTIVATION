@@ -16,7 +16,7 @@ class CustomUser(AbstractUser, BaseModel):
   current_streak = models.PositiveIntegerField(default=0)
   longest_streak = models.PositiveIntegerField(default=0)
   phone_number = models.CharField(max_length=255, blank=True, null=True)
-  profile_picture = models.CharField(blank=True, null=True)
+  profile_picture = models.CharField(max_length=1024, blank=True, null=True)
 
   USERNAME_FIELD = 'email'
   REQUIRED_FIELDS = ['username']

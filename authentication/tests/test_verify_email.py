@@ -2,16 +2,17 @@
 
 from rest_framework import status
 
-from authentication.models import CustomUser
+from authentication.models import CustomUser, PendingRegistration
 from authentication.tests.base import AuthenticationTestCase
 
 
 class VerifyEmailViewTests(AuthenticationTestCase):
     def test_verify_email_success(self):
         """Valid email and OTP verifies user and returns success."""
-        user = self.create_user(
+        PendingRegistration.objects.create(
             email="verify@example.com",
-            is_verified=False,
+            full_name="Verify User",
+            password="testpassword123",
             verification_token="123456",
             verification_token_expires_at=self.future_expiry(),
         )
@@ -22,16 +23,20 @@ class VerifyEmailViewTests(AuthenticationTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("message"), "Email verified successfully!")
-        user.refresh_from_db()
+        
+        # Check that user is created in CustomUser
+        user = CustomUser.objects.get(email="verify@example.com")
         self.assertTrue(user.is_verified)
-        self.assertIsNone(user.verification_token)
-        self.assertIsNone(user.verification_token_expires_at)
+        
+        # Check that PendingRegistration is deleted
+        self.assertFalse(PendingRegistration.objects.filter(email="verify@example.com").exists())
 
     def test_verify_email_invalid_otp_returns_400(self):
         """Wrong OTP returns 400."""
-        self.create_user(
+        PendingRegistration.objects.create(
             email="verify@example.com",
-            is_verified=False,
+            full_name="Verify User",
+            password="testpassword123",
             verification_token="123456",
             verification_token_expires_at=self.future_expiry(),
         )
@@ -44,9 +49,10 @@ class VerifyEmailViewTests(AuthenticationTestCase):
 
     def test_verify_email_expired_otp_returns_400(self):
         """Expired OTP returns 400."""
-        self.create_user(
+        PendingRegistration.objects.create(
             email="verify@example.com",
-            is_verified=False,
+            full_name="Verify User",
+            password="testpassword123",
             verification_token="123456",
             verification_token_expires_at=self.past_expiry(),
         )

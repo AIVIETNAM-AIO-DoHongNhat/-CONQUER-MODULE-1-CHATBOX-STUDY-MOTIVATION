@@ -1,3 +1,14 @@
 from django.db import models
+from core.models import BaseModel
 
-# Create your models here.
+class Room(BaseModel):
+    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Room"
+        verbose_name_plural = "Rooms"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
