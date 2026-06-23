@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "./Toast";
-import { sendSessionResult } from "@/lib/api";
+
+export interface TimerResult {
+  completedFocus: number;
+  focusSeconds: number;
+  breakSeconds: number;
+}
 
 interface TimerProps {
-  sessionId?: string | number;
   focusSeconds?: number;
   breakSeconds?: number;
   cycles?: number | undefined;
   autoStart?: boolean;
-  onSessionEnd?: (result: unknown) => void;
+  onSessionEnd?: (result: TimerResult) => void;
 }
 
 export default function Timer({
-  sessionId,
   focusSeconds = 30 * 60,
   breakSeconds = 5 * 60,
   cycles,
@@ -25,44 +28,21 @@ export default function Timer({
   const [seconds, setSeconds] = useState(focusSeconds);
   const [running, setRunning] = useState(autoStart);
   const [completedFocus, setCompletedFocus] = useState(0);
+  const [finished, setFinished] = useState(false);
   const tickRef = useRef<number | null>(null);
+  const transitioningRef = useRef(false);
   const toast = useToast();
 
-  useEffect(() => {
-    if (running) {
-      tickRef.current = window.setInterval(() => setSeconds((s) => s - 1), 1000);
-    }
-    return () => {
-      if (tickRef.current) {
-        clearInterval(tickRef.current);
-        tickRef.current = null;
-      }
-    };
-  }, [running]);
-
-  useEffect(() => {
-    if (seconds > 0) return;
-    if (!running) return;
-
+  const handlePhaseEnd = useCallback(() => {
     if (mode === "focus") {
       const nextCompleted = completedFocus + 1;
       setCompletedFocus(nextCompleted);
 
       if (cycles !== undefined && nextCompleted >= cycles) {
         setRunning(false);
+        setFinished(true);
         toast.success("Phiên hoàn tất", `Hoàn thành ${nextCompleted} chu kỳ.`);
-        if (sessionId) {
-          const payload = {
-            duration_seconds: focusSeconds * nextCompleted,
-            focus_periods: nextCompleted,
-            summary: "Hoàn tất session",
-          } as const;
-          sendSessionResult(sessionId, payload)
-            .then((res) => onSessionEnd?.(res))
-            .catch((err) => onSessionEnd?.(err));
-        } else {
-          onSessionEnd?.({ completedFocus: nextCompleted });
-        }
+        onSessionEnd?.({ completedFocus: nextCompleted, focusSeconds, breakSeconds });
         return;
       }
 
@@ -75,13 +55,32 @@ export default function Timer({
     setMode("focus");
     setSeconds(focusSeconds);
     toast.info("Quay lại tập trung", "Bắt đầu chu kỳ tập tiếp theo.");
-  }, [seconds, running, mode, completedFocus, cycles, sessionId, focusSeconds, breakSeconds, onSessionEnd, toast]);
+  }, [mode, completedFocus, cycles, focusSeconds, breakSeconds, onSessionEnd, toast]);
 
   useEffect(() => {
-    if (!running) {
-      setSeconds(mode === "focus" ? focusSeconds : breakSeconds);
+    if (running) {
+      tickRef.current = window.setInterval(
+        () => setSeconds((current) => {
+          if (current > 1) return current - 1;
+          if (!transitioningRef.current) {
+            transitioningRef.current = true;
+            window.setTimeout(() => {
+              handlePhaseEnd();
+              transitioningRef.current = false;
+            }, 0);
+          }
+          return 0;
+        }),
+        1000,
+      );
     }
-  }, [focusSeconds, breakSeconds, mode, running]);
+    return () => {
+      if (tickRef.current) {
+        clearInterval(tickRef.current);
+        tickRef.current = null;
+      }
+    };
+  }, [running, handlePhaseEnd]);
 
   function format(s: number) {
     const mm = Math.floor(Math.max(0, s) / 60)
@@ -110,10 +109,13 @@ export default function Timer({
         ) : (
           <button
             type="button"
-            onClick={() => setRunning(true)}
+            onClick={() => {
+              if (!finished) setRunning(true);
+            }}
+            disabled={finished}
             className="rounded-md bg-[#eef4ef] px-2 py-1 text-sm"
           >
-            Bắt đầu
+            {finished ? "Đã hoàn tất" : "Bắt đầu"}
           </button>
         )}
         <button
@@ -123,6 +125,7 @@ export default function Timer({
             setSeconds(focusSeconds);
             setRunning(false);
             setCompletedFocus(0);
+            setFinished(false);
           }}
           className="rounded-md bg-[#f8ece6] px-2 py-1 text-sm"
         >

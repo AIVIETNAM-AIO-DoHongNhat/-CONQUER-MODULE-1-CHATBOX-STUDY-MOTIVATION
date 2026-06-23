@@ -214,22 +214,21 @@ export async function logout() {
   clearTokens();
 }
 
-// Gửi kết quả phiên học về backend Session API.
-export interface SessionResultPayload {
+// Session API không nhận request body.
+export interface StudySession {
+  id?: number | string;
+  started_at?: string;
+  ended_at?: string | null;
   duration_seconds?: number;
-  focus_periods?: number;
-  breaks?: number;
-  summary?: string;
-  metrics?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
-export async function sendSessionResult(
-  sessionId: string | number,
-  payload: SessionResultPayload
-): Promise<unknown> {
-  const path = `/api/v1/sessions/${sessionId}/results/`;
-  return apiFetch(path, { method: "POST", body: JSON.stringify(payload) });
+export function startSession(): Promise<StudySession> {
+  return apiFetch<StudySession>("/api/v1/sessions/start/", { method: "POST" });
+}
+
+export function endSession(): Promise<StudySession> {
+  return apiFetch<StudySession>("/api/v1/sessions/end/", { method: "POST" });
 }
 
 // Trích thông báo lỗi gọn gàng từ response của backend (DRF) để hiển thị cho user.

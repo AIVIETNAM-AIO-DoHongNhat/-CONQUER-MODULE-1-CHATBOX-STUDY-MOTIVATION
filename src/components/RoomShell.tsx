@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
-import Timer from "./Timer";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Timer, { type TimerResult } from "./Timer";
 import { useToast } from "./Toast";
+import { endSession, readApiError, startSession } from "@/lib/api";
 
 interface RoomShellProps {
   sessionId?: string | number;
@@ -10,20 +12,83 @@ interface RoomShellProps {
 
 export default function RoomShell({ sessionId }: RoomShellProps) {
   const toast = useToast();
+  const router = useRouter();
+  const [sessionState, setSessionState] = useState<"starting" | "active" | "ending" | "ended" | "error">("starting");
+  const startRequested = useRef(false);
+  const endRequested = useRef(false);
+
+  useEffect(() => {
+    if (startRequested.current) return;
+    startRequested.current = true;
+
+    startSession()
+      .then(() => {
+        setSessionState("active");
+        toast.success("Phiên đã bắt đầu", "Timer focus 30 phút đang chạy.");
+      })
+      .catch((error: unknown) => {
+        setSessionState("error");
+        toast.error("Không thể bắt đầu phiên", readApiError(error));
+      });
+  }, [toast]);
+
+  const finishSession = useCallback(
+    async (result?: TimerResult) => {
+      if (endRequested.current || sessionState !== "active") return;
+      endRequested.current = true;
+      setSessionState("ending");
+
+      try {
+        await endSession();
+        toast.success(
+          "Đã lưu kết quả phiên",
+          result ? `Hoàn thành ${result.completedFocus} chu kỳ focus.` : "Phiên học đã kết thúc.",
+        );
+        setSessionState("ended");
+      } catch (error) {
+        endRequested.current = false;
+        setSessionState("active");
+        toast.error("Không thể kết thúc phiên", readApiError(error));
+        throw error;
+      }
+    },
+    [sessionState, toast],
+  );
+
+  const handleLeave = useCallback(async () => {
+    try {
+      await finishSession();
+      router.push("/rooms");
+    } catch {
+      // Giữ user trong phòng để có thể thử kết thúc phiên lại.
+    }
+  }, [finishSession, router]);
 
   return (
     <div className="min-h-[70vh] grid grid-cols-3 gap-6 px-4 py-6">
       <main className="col-span-2 rounded-lg border bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Phòng học · Phiên trực tiếp</h2>
+          <h2 className="text-lg font-semibold">Phòng học #{sessionId} · Phiên trực tiếp</h2>
           <div className="flex items-center gap-3">
-            <Timer sessionId={sessionId} focusSeconds={30 * 60} breakSeconds={5 * 60} cycles={4} onSessionEnd={(r)=>console.log('session end',r)} />
+            {sessionState === "starting" && <span className="text-sm text-gray-500">Đang bắt đầu phiên...</span>}
+            {sessionState === "error" && <span className="text-sm text-red-600">Phiên chưa thể bắt đầu</span>}
+            {sessionState === "ended" && <span className="text-sm font-medium text-[#527057]">Phiên đã hoàn tất</span>}
+            {(sessionState === "active" || sessionState === "ending") && (
+              <Timer
+                focusSeconds={30 * 60}
+                breakSeconds={5 * 60}
+                cycles={4}
+                autoStart
+                onSessionEnd={(result) => void finishSession(result)}
+              />
+            )}
             <button
               type="button"
-              onClick={() => toast.info("Bạn đã rời phòng", "Đang thoát...")}
+              onClick={() => void handleLeave()}
+              disabled={sessionState === "starting" || sessionState === "ending"}
               className="rounded-md bg-[#f1f0ea] px-3 py-1 text-sm"
             >
-              Rời phòng
+              {sessionState === "ending" ? "Đang lưu..." : "Rời phòng"}
             </button>
           </div>
         </div>
