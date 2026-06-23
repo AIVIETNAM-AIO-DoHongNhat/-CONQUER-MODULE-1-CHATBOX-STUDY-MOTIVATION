@@ -214,6 +214,24 @@ export async function logout() {
   clearTokens();
 }
 
+// Gửi kết quả phiên học về backend Session API.
+export interface SessionResultPayload {
+  duration_seconds?: number;
+  focus_periods?: number;
+  breaks?: number;
+  summary?: string;
+  metrics?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export async function sendSessionResult(
+  sessionId: string | number,
+  payload: SessionResultPayload
+): Promise<unknown> {
+  const path = `/api/v1/sessions/${sessionId}/results/`;
+  return apiFetch(path, { method: "POST", body: JSON.stringify(payload) });
+}
+
 // Trích thông báo lỗi gọn gàng từ response của backend (DRF) để hiển thị cho user.
 export function readApiError(err: unknown, fallback = "Có lỗi xảy ra, thử lại sau."): string {
   if (err instanceof ApiError) {
