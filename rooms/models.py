@@ -1,6 +1,9 @@
 from django.db import models
 from core.models import BaseModel
 
+class Room(BaseModel):
+    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    description = models.TextField(blank=True, null=True)
 
 class Room(BaseModel):
     name = models.CharField(max_length=255)
@@ -12,6 +15,7 @@ class Room(BaseModel):
     class Meta:
         verbose_name = "Room"
         verbose_name_plural = "Rooms"
+        ordering = ["name"]
         ordering = ["-created_at"]
 
     def __str__(self):

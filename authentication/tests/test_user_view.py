@@ -78,3 +78,23 @@ class UserViewProfileTests(AuthenticationTestCase):
         """Unauthenticated request returns 401."""
         response = self.client.get("/api/v1/auth/user/profile/")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_me_authenticated_returns_current_user(self):
+        """Authenticated user can get own profile via me alias."""
+        user = self.create_user(
+            email="me_alias@example.com",
+            first_name="Me",
+            last_name="User",
+        )
+        headers = self.get_auth_headers(user)
+        token = headers["HTTP_AUTHORIZATION"].split(" ")[1]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        response = self.client.get("/api/v1/auth/me/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["email"], "me_alias@example.com")
+        self.assertEqual(response.data["full_name"], "Me User")
+
+    def test_me_unauthenticated_returns_401(self):
+        """Unauthenticated request to me alias returns 401."""
+        response = self.client.get("/api/v1/auth/me/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

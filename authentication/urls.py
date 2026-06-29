@@ -16,6 +16,7 @@ urlpatterns = [
     path("verify-email/", VerifyEmailView.as_view(), name="verify-email"),
     path("user/", UserView.as_view({'get': 'list'}), name="user"),
     path("user/profile/", UserView.as_view({'get': 'profile'}), name="user-profile"),
+    path("me/", UserView.as_view({'get': 'profile'}), name="me"),
     path("user/<int:pk>/", UserView.as_view({'get': 'retrieve'}), name="user-by-id"),
     path("logout/", LogoutView.as_view(), name='logout'),
     path("user/profile/update/", UpdateProfileView.as_view(), name="update-profile"),

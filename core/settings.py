@@ -18,6 +18,18 @@ from datetime import timedelta
 
 dotenv.load_dotenv()
 
+# Python 3.14 compatibility patch for django.template.context.BaseContext.__copy__
+from django.template.context import BaseContext
+def _patch_base_context_copy(self):
+    cls = self.__class__
+    duplicate = cls.__new__(cls)
+    for k, v in self.__dict__.items():
+        if k != 'dicts':
+            setattr(duplicate, k, v)
+    duplicate.dicts = self.dicts[:]
+    return duplicate
+BaseContext.__copy__ = _patch_base_context_copy
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -108,16 +120,26 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DATABASE_NAME"),
-        "USER": os.getenv("DATABASE_USER"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
-        "PORT": os.getenv("DATABASE_PORT"),
+DATABASE_ENGINE = os.getenv("DATABASE_ENGINE", "django.db.backends.postgresql")
+
+if DATABASE_ENGINE == "django.db.backends.sqlite3":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / os.getenv("DATABASE_NAME", "db.sqlite3"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DATABASE_NAME"),
+            "USER": os.getenv("DATABASE_USER"),
+            "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+            "HOST": os.getenv("DATABASE_HOST"),
+            "PORT": os.getenv("DATABASE_PORT"),
+        }
+    }
 
 
 # Password validation

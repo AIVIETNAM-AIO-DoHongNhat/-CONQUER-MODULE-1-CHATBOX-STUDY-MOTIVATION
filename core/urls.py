@@ -26,8 +26,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api/v1/auth/', include('authentication.urls')),
-    path('api/v1/rooms/', include('rooms.urls')),
-    path('api/v1/sessions/', include('session.urls')),
+    path('api/v1/', include('rooms.urls')),
+    path('api/v1/', include('todos.urls')),
+    path('api/v1/', include('gamify.urls')),
+    path('api/v1/', include('session.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]

@@ -20,13 +20,14 @@ class RegisterViewTests(AuthenticationTestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data.get("message"), "Register successful!")
+        from authentication.models import PendingRegistration
         self.assertTrue(
-            CustomUser.objects.filter(email="newuser@example.com").exists()
+            PendingRegistration.objects.filter(email="newuser@example.com").exists()
         )
-        user = CustomUser.objects.get(email="newuser@example.com")
-        self.assertFalse(user.is_verified)
-        self.assertIsNotNone(user.verification_token)
-        self.assertIsNotNone(user.verification_token_expires_at)
+        pending = PendingRegistration.objects.get(email="newuser@example.com")
+        self.assertEqual(pending.full_name, "New User")
+        self.assertIsNotNone(pending.verification_token)
+        self.assertIsNotNone(pending.verification_token_expires_at)
 
     def test_register_duplicate_email_returns_400(self):
         """Registering with existing email returns 400."""

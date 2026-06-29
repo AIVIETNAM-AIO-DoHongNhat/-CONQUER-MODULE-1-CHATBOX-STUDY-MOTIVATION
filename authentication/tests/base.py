@@ -21,7 +21,7 @@ class AuthenticationTestCase(APITestCase):
         self,
         email="user@example.com",
         password="testpass123",
-        full_name= "Test User",
+        full_name=None,
         phone_number="1234567890",
         profile_picture="https://example.com/profile.jpg",
         is_verified=True,
@@ -29,8 +29,13 @@ class AuthenticationTestCase(APITestCase):
         verification_token_expires_at=None,
         recovery_token=None,
         recovery_token_expires_at=None,
+        **kwargs,
     ):
-
+        if full_name is None:
+            if "first_name" in kwargs and "last_name" in kwargs:
+                full_name = f"{kwargs['first_name']} {kwargs['last_name']}".strip()
+            else:
+                full_name = "Test User"
 
         user = CustomUser.objects.create_user(
             email=email,
@@ -44,6 +49,7 @@ class AuthenticationTestCase(APITestCase):
             verification_token_expires_at=verification_token_expires_at,
             recovery_token=recovery_token,
             recovery_token_expires_at=recovery_token_expires_at,
+            **kwargs,
         )
         return user
 
