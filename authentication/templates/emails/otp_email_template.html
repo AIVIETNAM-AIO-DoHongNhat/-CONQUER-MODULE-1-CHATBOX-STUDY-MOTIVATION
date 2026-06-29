@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ email_subject }} - AIO StudyVerse</title>
+    <meta name="color-scheme" content="light only">
+    <title>{{ email_subject }} · {{ project_name }}</title>
 
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #FFF7EA;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #1F2343;
+            background-color: #f7f6f1;
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            color: #1b1b19;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -23,186 +24,193 @@
         .wrapper {
             width: 100%;
             table-layout: fixed;
-            background-color: #FFF7EA;
-            padding: 40px 12px;
+            background-color: #f7f6f1;
+            padding: 44px 16px;
         }
 
         .container {
             width: 100%;
-            max-width: 520px;
+            max-width: 480px;
             margin: 0 auto;
-            background-color: #FFFFFF;
-            border-radius: 18px;
-            border: 3px solid #242142;
+            background-color: #ffffff;
+            border-radius: 22px;
+            border: 1px solid #ebe8df;
             overflow: hidden;
-            box-shadow: 6px 6px 0 #242142;
+            box-shadow: 0 18px 44px -20px rgba(27, 27, 25, 0.22);
         }
 
         .header {
-            padding: 28px 36px 22px 36px;
+            padding: 34px 36px 26px 36px;
             text-align: center;
-            background-color: #FFE9D6;
-            border-bottom: 3px solid #242142;
         }
 
-        .logo-image {
-            height: 52px;
-            width: auto;
+        .brand {
+            font-size: 0;
+            line-height: 1;
+        }
+
+        .brand-badge {
+            display: inline-block;
+            vertical-align: middle;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 12px;
             margin-right: 10px;
-            display: inline-block;
-            vertical-align: middle;
-            border-radius: 14px;
+            background-color: #7a9e7e;
+            background-image: linear-gradient(135deg, #7a9e7e 0%, #b5764a 100%);
         }
 
-        .logo-text {
-            color: #242142;
-            font-size: 34px;
-            font-weight: 800;
-            letter-spacing: 0.3px;
+        .brand-text {
             display: inline-block;
             vertical-align: middle;
-            line-height: 52px;
+            font-size: 22px;
+            letter-spacing: -0.01em;
+            color: #1b1b19;
+        }
+
+        .brand-text b {
+            font-weight: 800;
+        }
+
+        .brand-text span {
+            font-weight: 500;
         }
 
         .tagline {
-            margin-top: 10px;
-            color: #5B5878;
-            font-size: 14px;
-            font-weight: 600;
+            margin: 14px 0 0 0;
+            color: #8a877f;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            line-height: 1px;
+            font-size: 0;
+            background-color: #efece4;
         }
 
         .content {
-            padding: 30px 36px 24px 36px;
-            background-color: #FFFDF8;
+            padding: 30px 36px 8px 36px;
         }
 
         h1 {
-            color: #242142;
-            font-size: 22px;
-            font-weight: 800;
-            margin-top: 0;
-            margin-bottom: 16px;
+            color: #1b1b19;
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin: 0 0 6px 0;
         }
 
-        p {
+        .greeting {
+            font-size: 15px;
+            line-height: 23px;
+            color: #6b6b66;
+            margin: 0 0 18px 0;
+        }
+
+        .greeting b {
+            color: #1b1b19;
+            font-weight: 600;
+        }
+
+        .lead {
             font-size: 15px;
             line-height: 24px;
-            color: #4B4A68;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        strong {
-            color: #242142;
-        }
-
-        .message-box {
-            background-color: #EAF6FF;
-            border: 2px solid #242142;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 22px;
+            color: #4a4843;
+            margin: 0 0 24px 0;
         }
 
         .otp-box {
-            background-color: #FFE9D6;
-            border: 3px solid #242142;
-            border-radius: 18px;
-            padding: 22px 16px;
+            background-color: #f4f6f3;
+            border: 1px solid #dfe7e0;
+            border-radius: 16px;
+            padding: 22px 16px 24px 16px;
             text-align: center;
-            margin-bottom: 22px;
-            box-shadow: 4px 4px 0 #242142;
+            margin: 0 0 22px 0;
         }
 
         .otp-label {
-            font-size: 12px;
-            color: #5B5878;
+            font-size: 11px;
+            color: #6f8a73;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            font-weight: 800;
+            letter-spacing: 1.6px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
         }
 
         .otp-code {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 36px;
-            font-weight: 900;
-            letter-spacing: 7px;
-            color: #FF7657;
+            font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: 10px;
+            /* bù khoảng cách chữ cuối để mã trông cân giữa */
+            text-indent: 10px;
+            color: #1b1b19;
+            line-height: 1.1;
         }
 
-        .note-box {
-            background-color: #F2FFF4;
-            border: 2px solid #242142;
-            border-radius: 16px;
-            padding: 14px 16px;
-            margin-bottom: 20px;
+        .note {
+            font-size: 13.5px;
+            line-height: 21px;
+            color: #6b6b66;
+            margin: 0 0 14px 0;
         }
 
-        .note-box p {
-            margin: 0;
-            color: #4B4A68;
-            font-size: 14px;
+        .note b {
+            color: #1b1b19;
+            font-weight: 600;
         }
 
-        .warning-box {
-            background-color: #FFF6CC;
-            border: 2px solid #242142;
-            border-radius: 16px;
-            padding: 14px 16px;
-            margin-bottom: 10px;
-        }
-
-        .warning-box p {
-            margin: 0;
-            color: #4B4A68;
-            font-size: 14px;
+        .security {
+            display: block;
+            background-color: #faf3ee;
+            border: 1px solid #efddd0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 19px;
+            color: #9b6a4f;
+            margin: 0 0 8px 0;
         }
 
         .footer {
-            padding: 24px 36px 34px 36px;
+            padding: 24px 36px 32px 36px;
             text-align: center;
-            background-color: #F6F1FF;
-            border-top: 3px solid #242142;
         }
 
         .footer-text {
             font-size: 12px;
-            color: #6B6888;
+            color: #9a978f;
             line-height: 18px;
-            margin-bottom: 12px;
+            margin: 0 0 10px 0;
         }
 
         .footer-link {
-            color: #FF7657;
+            color: #b5764a;
             text-decoration: none;
-            font-weight: 800;
+            font-weight: 600;
         }
 
         @media only screen and (max-width: 600px) {
             .wrapper {
-                padding: 24px 10px;
-            }
-
-            .container {
-                border-radius: 16px;
-                box-shadow: 4px 4px 0 #242142;
+                padding: 28px 12px;
             }
 
             .header,
             .content,
             .footer {
-                padding-left: 22px;
-                padding-right: 22px;
-            }
-
-            .logo-text {
-                font-size: 28px;
+                padding-left: 24px;
+                padding-right: 24px;
             }
 
             .otp-code {
-                font-size: 30px;
-                letter-spacing: 5px;
+                font-size: 32px;
+                letter-spacing: 7px;
+                text-indent: 7px;
             }
         }
     </style>
@@ -211,67 +219,58 @@
 <body>
     <center class="wrapper">
         <table class="container" role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <!-- Header / thương hiệu -->
             <tr>
                 <td class="header">
-                    {% if app_logo %}
-                    <img src="{{ app_logo }}" alt="AIO StudyVerse Logo" class="logo-image" />
-                    {% endif %}
-
-                    <span class="logo-text">
-                        AIO StudyVerse
-                    </span>
-
-                    <div class="tagline">
-                        Enter the room, turn on focus, learn together
+                    <div class="brand">
+                        <span class="brand-text"><b>AIO</b><span>tivation</span></span>
                     </div>
+                    <p class="tagline">Học cùng nhau, giữ nhịp tập trung.</p>
                 </td>
             </tr>
 
+            <tr>
+                <td class="divider"></td>
+            </tr>
+
+            <!-- Nội dung -->
             <tr>
                 <td class="content">
                     <h1>{{ email_heading }}</h1>
+                    <p class="greeting">Xin chào <b>{{ email }}</b>,</p>
 
-                    <p>Hello, {{ email }}</p>
-
-                    <div class="message-box">
-                        <p style="margin-bottom: 0;">
-                            {{ action_description }}
-                        </p>
-                    </div>
+                    <p class="lead">{{ action_description }}</p>
 
                     <div class="otp-box">
-                        <div class="otp-label">Your Verification Code</div>
+                        <div class="otp-label">Mã xác thực của bạn</div>
                         <div class="otp-code">{{ otp_code }}</div>
                     </div>
 
-                    <div class="note-box">
-                        <p>
-                            This verification code is valid for
-                            <strong>{{ expiry_minutes }} minutes</strong>.
-                            For account security, please do not share this code with anyone.
-                        </p>
-                    </div>
+                    <p class="note">
+                        Mã có hiệu lực trong <b>{{ expiry_minutes }} phút</b>.
+                        Vì lý do bảo mật, vui lòng không chia sẻ mã này với bất kỳ ai.
+                    </p>
 
-                    <div class="warning-box">
-                        <p>
-                            If you did not request this, you can safely ignore this email.
-                        </p>
-                    </div>
+                    <span class="security">
+                        Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email - tài khoản của bạn vẫn an toàn.
+                    </span>
                 </td>
             </tr>
 
             <tr>
+                <td class="divider"></td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
                 <td class="footer">
                     <p class="footer-text">
-                        This is an automated email from the AIO StudyVerse platform.<br>
-                        Need help? Contact
-                        <a href="mailto:support@aiostudyverse.com" class="footer-link">
-                            support@aiostudyverse.com
-                        </a>
+                        Email tự động từ {{ project_name }}.<br>
+                        Cần hỗ trợ? Liên hệ
+                        <a href="mailto:support@aiotivation.com" class="footer-link">support@aiotivation.com</a>
                     </p>
-
                     <p class="footer-text" style="margin-bottom: 0;">
-                        &copy; 2026 AIO StudyVerse. All rights reserved.
+                        &copy; 2026 {{ project_name }}. Bảo lưu mọi quyền.
                     </p>
                 </td>
             </tr>

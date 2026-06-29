@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from authentication.services.auth_service import AuthService
 from authentication.services.mail_service import MailService
+from datetime import datetime, timezone
 
 auth_service = AuthService()
 mail_service = MailService()
@@ -21,7 +22,8 @@ class ResendOtpSerializer(serializers.Serializer):
         user.recovery_token = otp
         user.recovery_token_expires_at = expiry_time
         user.save()
-        email_heading = "Reset Your Password"
-        action_description = "We received a request to reset the password for your account. Please use the verification code below to authorize this change." 
-        mail_service.send_otp_email(email, otp, expiry_time, email_heading, action_description)
+        expiry_minutes = int((expiry_time - datetime.now(timezone.utc)).total_seconds() // 60)
+        email_heading = "Đặt lại mật khẩu"
+        action_description = "Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Hãy dùng mã xác thực bên dưới để xác nhận thay đổi này."
+        mail_service.send_otp_email(email, otp, expiry_minutes, email_heading, action_description)
         return user

@@ -35,8 +35,8 @@ class RegisterSerializer(serializers.Serializer):
             verification_token_expires_at=expiry_time,
         )
 
-        email_heading = "Verify Your Account"
-        action_description = "Thank you for registering. Please use the verification code below to complete your sign-up process."
+        email_heading = "Xác thực tài khoản"
+        action_description = "Cảm ơn bạn đã đăng ký AIOtivation. Hãy dùng mã xác thực bên dưới để hoàn tất việc tạo tài khoản."
         mail_service.send_otp_email(validated_data['email'], otp, expiry_minutes, email_heading, action_description)
 
         return pending_reg

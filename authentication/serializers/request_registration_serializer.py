@@ -30,8 +30,8 @@ class RequestRegistrationSerializer(serializers.Serializer):
             verification_token_expires_at=expiry_time,
         )
 
-        email_heading = "Verify Your Account"
-        action_description = "Please use the verification code below to verify your email."
+        email_heading = "Xác thực tài khoản"
+        action_description = "Hãy dùng mã xác thực bên dưới để xác minh địa chỉ email của bạn."
         mail_service.send_otp_email(validated_data['email'], otp, expiry_minutes, email_heading, action_description)
 
         return pending_reg
