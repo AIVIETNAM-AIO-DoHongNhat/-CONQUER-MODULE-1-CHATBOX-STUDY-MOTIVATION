@@ -41,19 +41,19 @@ class SessionAndGoalTests(AuthenticationTestCase):
         """Test starting, retrieving, and ending a session, which updates DailyGoal."""
         # 1. Start session
         response = self.client.post(
-            "/api/v1/sessions/",
-            {"room": self.room.id},
+            "/api/v1/sessions/start/",
+            {"room_id": self.room.id},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         session_id = response.data["id"]
-        self.assertTrue(response.data["is_active"])
+        self.assertEqual(response.data["status"], Session.STATUS_RUNNING)
         self.assertEqual(response.data["room"], self.room.id)
 
         # Try to start another session (should fail)
         response_fail = self.client.post(
-            "/api/v1/sessions/",
-            {"room": self.room.id},
+            "/api/v1/sessions/start/",
+            {"room_id": self.room.id},
             format="json",
         )
         self.assertEqual(response_fail.status_code, status.HTTP_400_BAD_REQUEST)
@@ -70,13 +70,13 @@ class SessionAndGoalTests(AuthenticationTestCase):
             format="json",
         )
         self.assertEqual(response_end.status_code, status.HTTP_200_OK)
-        self.assertFalse(response_end.data["session"]["is_active"])
+        self.assertEqual(response_end.data["session"]["status"], Session.STATUS_COMPLETED)
         self.assertEqual(response_end.data["session"]["focus_minutes"], 45)
         self.assertEqual(response_end.data["daily_goal"]["achieved_minutes"], 45)
 
         # Verify database
         session = Session.objects.get(id=session_id)
-        self.assertFalse(session.is_active)
+        self.assertEqual(session.status, Session.STATUS_COMPLETED)
         self.assertEqual(session.focus_minutes, 45)
 
         goal = DailyGoal.objects.get(user=self.user, date=date.today())
