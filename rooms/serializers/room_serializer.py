@@ -19,7 +19,7 @@ class RoomSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "active_user_count"]
 
-    def get_active_user_count(self, obj):
+    def get_active_user_count(self, obj) -> int:
         return (
             Session.objects.filter(
                 room=obj, status=Session.STATUS_RUNNING, ended_at__isnull=True

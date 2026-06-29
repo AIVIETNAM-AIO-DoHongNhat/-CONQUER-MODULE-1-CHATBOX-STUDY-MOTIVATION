@@ -16,6 +16,7 @@ from gamify.services import recalculate_streak, unlock_badges_for_user
 
 
 class SessionViewSet(viewsets.ModelViewSet):
+    queryset = Session.objects.all()
     serializer_class = SessionSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]

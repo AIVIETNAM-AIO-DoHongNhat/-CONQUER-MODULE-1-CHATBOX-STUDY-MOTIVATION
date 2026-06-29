@@ -8,6 +8,7 @@ from todos.serializers import TodoSerializer
 
 
 class TodoViewSet(viewsets.ModelViewSet):
+    queryset = Todo.objects.all()
     serializer_class = TodoSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]

@@ -3,9 +3,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_spectacular.utils import extend_schema
 from datetime import date
 from gamify.models import Badge, DailyGoal, UserBadge
-from gamify.serializers import DailyGoalSerializer, UserBadgeSerializer
+from gamify.serializers import (
+    DailyGoalSerializer,
+    UserBadgeSerializer,
+    WeeklyLeaderboardSerializer,
+)
 from django.db.models import Sum
 from django.utils import timezone
 from datetime import timedelta
@@ -51,9 +56,11 @@ class DailyGoalViewSet(viewsets.GenericViewSet):
 
 
 class UserBadgeListView(APIView):
+    serializer_class = UserBadgeSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @extend_schema(responses=UserBadgeSerializer(many=True))
     def get(self, request):
         badges = Badge.objects.filter(is_active=True).order_by(
             "condition_type",
@@ -76,6 +83,7 @@ class UserBadgeListView(APIView):
 
 
 class WeeklyLeaderboardView(APIView):
+    serializer_class = WeeklyLeaderboardSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
@@ -92,6 +100,7 @@ class WeeklyLeaderboardView(APIView):
         )
         return start, end
     
+    @extend_schema(responses=WeeklyLeaderboardSerializer)
     def get(self, request):
         limit = int(request.query_params.get("limit", 10))
         start, end =self.get_week_range()
