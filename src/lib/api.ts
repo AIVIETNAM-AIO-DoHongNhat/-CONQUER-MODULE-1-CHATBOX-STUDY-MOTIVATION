@@ -214,6 +214,23 @@ export async function logout() {
   clearTokens();
 }
 
+// Session API không nhận request body.
+export interface StudySession {
+  id?: number | string;
+  started_at?: string;
+  ended_at?: string | null;
+  duration_seconds?: number;
+  [key: string]: unknown;
+}
+
+export function startSession(): Promise<StudySession> {
+  return apiFetch<StudySession>("/api/v1/sessions/start/", { method: "POST" });
+}
+
+export function endSession(): Promise<StudySession> {
+  return apiFetch<StudySession>("/api/v1/sessions/end/", { method: "POST" });
+}
+
 // Trích thông báo lỗi gọn gàng từ response của backend (DRF) để hiển thị cho user.
 export function readApiError(err: unknown, fallback = "Có lỗi xảy ra, thử lại sau."): string {
   if (err instanceof ApiError) {
