@@ -150,7 +150,10 @@ class Migration(migrations.Migration):
                     "phone_number",
                     models.CharField(blank=True, max_length=255, null=True),
                 ),
-                ("profile_picture", models.CharField(blank=True, null=True)),
+                (
+                    "profile_picture",
+                    models.CharField(blank=True, max_length=1024, null=True),
+                ),
                 (
                     "groups",
                     models.ManyToManyField(

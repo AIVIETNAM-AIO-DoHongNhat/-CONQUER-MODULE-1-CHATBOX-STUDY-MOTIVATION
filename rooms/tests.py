@@ -11,9 +11,9 @@ class RoomTests(AuthenticationTestCase):
         call_command("seed_rooms")
         self.assertEqual(Room.objects.count(), 3)
         room_names = list(Room.objects.values_list("name", flat=True))
-        self.assertIn("Research", room_names)
-        self.assertIn("Product", room_names)
-        self.assertIn("Freedom", room_names)
+        self.assertIn("Toán", room_names)
+        self.assertIn("Ngoại ngữ", room_names)
+        self.assertIn("Tự do", room_names)
 
     def test_list_rooms_unauthenticated_returns_401(self):
         """Unauthenticated request to list rooms returns 401."""
@@ -35,6 +35,6 @@ class RoomTests(AuthenticationTestCase):
         results = response.data.get("results", response.data)
         self.assertGreaterEqual(len(results), 3)
         room_names = [r["name"] for r in results]
-        self.assertIn("Research", room_names)
-        self.assertIn("Product", room_names)
-        self.assertIn("Freedom", room_names)
+        self.assertIn("Toán", room_names)
+        self.assertIn("Ngoại ngữ", room_names)
+        self.assertIn("Tự do", room_names)

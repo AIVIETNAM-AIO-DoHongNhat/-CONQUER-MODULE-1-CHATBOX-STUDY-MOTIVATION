@@ -13,7 +13,11 @@ class TodoTests(AuthenticationTestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
         
         self.room = Room.objects.create(name="Study Room", description="Test Room")
-        self.session = Session.objects.create(user=self.user, room=self.room, is_active=True)
+        self.session = Session.objects.create(
+            user=self.user,
+            room=self.room,
+            status=Session.STATUS_RUNNING,
+        )
 
     def test_create_todo_auto_links_active_session(self):
         """Creating a todo auto-links it to the user's active session."""
@@ -37,7 +41,11 @@ class TodoTests(AuthenticationTestCase):
         todo1 = Todo.objects.create(user=self.user, session=self.session, title="Active Todo")
         
         # Todo for inactive session
-        inactive_session = Session.objects.create(user=self.user, room=self.room, is_active=False)
+        inactive_session = Session.objects.create(
+            user=self.user,
+            room=self.room,
+            status=Session.STATUS_COMPLETED,
+        )
         todo2 = Todo.objects.create(user=self.user, session=inactive_session, title="Inactive Todo")
         
         response = self.client.get("/api/v1/todos/")
