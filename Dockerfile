@@ -23,5 +23,8 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Run migrations and start server
 CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:8000"]
