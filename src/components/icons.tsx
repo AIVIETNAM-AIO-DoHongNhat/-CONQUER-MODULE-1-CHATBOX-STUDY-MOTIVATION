@@ -110,3 +110,46 @@ export function LockIcon({ size = 24, className, strokeWidth = 1.6 }: IconProps)
     </svg>
   );
 }
+
+// Đồng hồ - tổng phút tập trung
+export function ClockIcon({ size = 24, className, strokeWidth = 1.6 }: IconProps) {
+  return (
+    <svg {...base(size, strokeWidth, className)}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  );
+}
+
+// Dấu tích trong vòng tròn - hoàn thành phiên học
+export function CheckCircleIcon({ size = 24, className, strokeWidth = 1.6 }: IconProps) {
+  return (
+    <svg {...base(size, strokeWidth, className)}>
+      <path d="M21.8 10A10 10 0 1 1 17 3.34" />
+      <path d="m9 11 3 3L22 4" />
+    </svg>
+  );
+}
+
+// Ngôi sao - cấp độ
+export function StarIcon({ size = 24, className, strokeWidth = 1.6 }: IconProps) {
+  return (
+    <svg {...base(size, strokeWidth, className)}>
+      <path d="M11.5 2.6a.5.5 0 0 1 .9 0l2.4 4.9 5.4.8a.5.5 0 0 1 .3.9l-3.9 3.8.9 5.4a.5.5 0 0 1-.7.5L12 17l-4.8 2.5a.5.5 0 0 1-.7-.5l.9-5.4-3.9-3.8a.5.5 0 0 1 .3-.9l5.4-.8z" />
+    </svg>
+  );
+}
+
+// Cúp - huy hiệu mặc định / thành tích
+export function TrophyIcon({ size = 24, className, strokeWidth = 1.6 }: IconProps) {
+  return (
+    <svg {...base(size, strokeWidth, className)}>
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+    </svg>
+  );
+}

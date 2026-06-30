@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BoWidget from "@/components/BoWidget";
 
 export default function AppLayout({
   children,
@@ -12,6 +13,8 @@ export default function AppLayout({
       {/* Outlet: nội dung từng route render ở đây (full-width; trang tự đặt container) */}
       <main className="flex-1">{children}</main>
       <Footer />
+      {/* Nút nổi trò chuyện với Bo — hiện trên mọi trang */}
+      <BoWidget />
     </div>
   );
 }

@@ -5,13 +5,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Logo } from "@/components/Logo";
+import HeaderDailyGoal from "@/components/HeaderDailyGoal";
+import HeaderStreak from "@/components/HeaderStreak";
 import { useProfile } from "@/hooks/useProfile";
 import { clearTokens, getAccessToken, type Profile } from "@/lib/api";
 
 const NAV = [
   { href: "/", label: "Trang chủ" },
   { href: "/rooms", label: "Phòng học" },
-  { href: "/todos", label: "Công việc" },
+  { href: "/leaderboard", label: "Xếp hạng" },
   { href: "/about", label: "Về chúng tôi" },
 ];
 
@@ -120,7 +122,10 @@ export default function Header() {
           {!mounted ? (
             <span className="h-9 w-9" aria-hidden />
           ) : loggedIn ? (
-            <div className="relative">
+            <>
+              <HeaderStreak />
+              <HeaderDailyGoal />
+              <div className="relative">
               <button
                 type="button"
                 onClick={() => setMenuOpen((v) => !v)}
@@ -168,6 +173,13 @@ export default function Header() {
                       >
                         Phòng học của tôi
                       </Link>
+                      <Link
+                        href="/todos"
+                        onClick={() => setMenuOpen(false)}
+                        className="block rounded-xl px-3 py-2 text-sm text-[#1b1b19] transition-colors hover:bg-[#f1f0ea]"
+                      >
+                        Công việc
+                      </Link>
                       <button
                         type="button"
                         onClick={handleLogout}
@@ -179,7 +191,8 @@ export default function Header() {
                   </div>
                 </>
               )}
-            </div>
+              </div>
+            </>
           ) : (
             <>
               <Link
@@ -241,6 +254,13 @@ export default function Header() {
             </div>
           )}
 
+          {mounted && loggedIn && (
+            <div className="mb-3 space-y-3">
+              <HeaderStreak full onNavigate={() => setOpen(false)} />
+              <HeaderDailyGoal full onNavigate={() => setOpen(false)} />
+            </div>
+          )}
+
           <nav className="flex flex-col gap-1">
             {NAV.map((item) => {
               const active = isActive(item.href);
@@ -261,13 +281,26 @@ export default function Header() {
             })}
 
             {mounted && loggedIn ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="mt-2 rounded-xl px-4 py-2.5 text-left text-[15px] font-medium text-[#a8503a] transition-colors hover:bg-[#f8ece6]"
-              >
-                Đăng xuất
-              </button>
+              <>
+                <Link
+                  href="/todos"
+                  onClick={() => setOpen(false)}
+                  className={`rounded-xl px-4 py-2.5 text-[15px] transition-colors ${
+                    isActive("/todos")
+                      ? "bg-[#1b1b19]/[0.06] font-medium text-[#1b1b19]"
+                      : "text-[#6b6b66] hover:text-[#1b1b19]"
+                  }`}
+                >
+                  Công việc
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="mt-2 rounded-xl px-4 py-2.5 text-left text-[15px] font-medium text-[#a8503a] transition-colors hover:bg-[#f8ece6]"
+                >
+                  Đăng xuất
+                </button>
+              </>
             ) : (
               <>
                 <Link

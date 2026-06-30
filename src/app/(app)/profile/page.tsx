@@ -6,6 +6,8 @@ import { readApiError, getAccessToken, type Profile } from "@/lib/api";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { useToast } from "@/components/Toast";
 import { FlameIcon } from "@/components/icons";
+import StreakGrid from "@/components/StreakGrid";
+import BadgeGrid from "@/components/BadgeGrid";
 
 const fieldClass =
   "w-full rounded-xl border border-[#e0ddd3] bg-white px-4 py-3 text-[15px] outline-none transition-colors placeholder:text-[#b0aea6] focus:border-[#1b1b19] focus:ring-2 focus:ring-[#1b1b19]/10";
@@ -261,6 +263,16 @@ export default function ProfilePage() {
           }
         />
         <StatCard label="Chuỗi dài nhất" value={profile.longest_streak ?? 0} />
+      </div>
+
+      {/* Chuỗi học (lưới kiểu GitHub) */}
+      <div className="mt-5">
+        <StreakGrid weeks={18} />
+      </div>
+
+      {/* Bộ sưu tập huy hiệu */}
+      <div className="mt-5">
+        <BadgeGrid />
       </div>
 
       {/* Thông tin chi tiết */}

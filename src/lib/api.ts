@@ -214,21 +214,248 @@ export async function logout() {
   clearTokens();
 }
 
-// Session API không nhận request body.
+// Một phiên học (session.SessionSerializer).
 export interface StudySession {
-  id?: number | string;
-  started_at?: string;
-  ended_at?: string | null;
-  duration_seconds?: number;
-  [key: string]: unknown;
+  id: number;
+  user: number;
+  room: number;
+  started_at: string;
+  ended_at: string | null;
+  focus_minutes: number | null;
+  status: "running" | "completed";
 }
 
-export function startSession(): Promise<StudySession> {
-  return apiFetch<StudySession>("/api/v1/sessions/start/", { method: "POST" });
+// Điều kiện mở khóa huy hiệu (gamify.Badge.CONDITION_CHOICES).
+export type BadgeConditionType =
+  | "streak_days"
+  | "total_focus_minutes"
+  | "total_sessions"
+  | "xp"
+  | "level";
+
+export interface Badge {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  condition_type: BadgeConditionType | string;
+  threshold: number;
+  icon: string;
 }
 
-export function endSession(): Promise<StudySession> {
-  return apiFetch<StudySession>("/api/v1/sessions/end/", { method: "POST" });
+// Huy hiệu kèm trạng thái mở khóa của user hiện tại (gamify.UserBadgeSerializer).
+// is_unlocked = đã đạt điều kiện; unlocked_at = thời điểm mở (null nếu chưa).
+export interface UserBadge extends Badge {
+  is_unlocked: boolean;
+  unlocked_at: string | null;
+}
+
+// Toàn bộ huy hiệu đang active (đã mở + chưa mở), sắp theo condition_type rồi
+// threshold. Backend trả về list thẳng, không bọc phân trang.
+export function getBadges(): Promise<UserBadge[]> {
+  return apiFetch<UserBadge[]>("/api/v1/badges/");
+}
+
+// Kết quả khi kết thúc phiên: backend lưu focus_minutes, cộng XP/streak và mở
+// khóa huy hiệu rồi trả về tất cả.
+export interface EndSessionResult {
+  session: StudySession;
+  daily_goal: { date: string; target_minutes: number; achieved_minutes: number };
+  xp_awarded: number;
+  level: number;
+  streak: unknown;
+  unlocked_badges: Badge[];
+}
+
+// Phiên đang chạy của user (nếu có). Backend trả 404 khi không có phiên nào →
+// quy về null để caller phân biệt "không có phiên" với lỗi thật.
+export async function getActiveSession(): Promise<StudySession | null> {
+  try {
+    return await apiFetch<StudySession>("/api/v1/sessions/active/");
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+// Bắt đầu phiên trong một phòng cụ thể — backend yêu cầu room_id.
+export function startSession(roomId: string | number): Promise<StudySession> {
+  return apiFetch<StudySession>("/api/v1/sessions/start/", {
+    method: "POST",
+    body: JSON.stringify({ room_id: roomId }),
+  });
+}
+
+// Kết thúc phiên đang chạy. Truyền focusMinutes (số phút thực sự tập trung) để
+// lưu chính xác; bỏ trống thì backend tự tính theo thời gian trôi.
+export function endSession(focusMinutes?: number): Promise<EndSessionResult> {
+  return apiFetch<EndSessionResult>("/api/v1/sessions/end/", {
+    method: "POST",
+    ...(focusMinutes !== undefined
+      ? { body: JSON.stringify({ focus_minutes: focusMinutes }) }
+      : {}),
+  });
+}
+
+// ---- Rooms ----
+
+// Một phòng học trả về từ backend (rooms.RoomSerializer).
+export interface Room {
+  id: number;
+  name: string;
+  category?: string | null;
+  description?: string | null;
+  max_users: number;
+  is_active: boolean;
+  active_user_count: number;
+}
+
+// Backend bọc list trong CustomPagination (core/pagination.py).
+export interface Paginated<T> {
+  count: number;
+  total_pages: number;
+  current_page: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
+// Lấy danh sách phòng đang hoạt động. page_size lớn để lobby hiển thị đủ phòng
+// rồi lọc/phân trang phía client; chỉnh lại nếu sau này cần phân trang server.
+export function listRooms(pageSize = 100): Promise<Paginated<Room>> {
+  return apiFetch<Paginated<Room>>(`/api/v1/rooms/?page_size=${pageSize}`);
+}
+
+// Chi tiết một phòng (rooms.RoomViewSet.retrieve).
+export function getRoom(id: string | number): Promise<Room> {
+  return apiFetch<Room>(`/api/v1/rooms/${id}/`);
+}
+
+// ---- Todos ----
+
+// Một todo trả về từ backend (todos.TodoSerializer). Khi tạo trong lúc có phiên
+// đang chạy, backend tự gán `session` = phiên đó → todo gắn với buổi học.
+export interface Todo {
+  id: number;
+  title: string;
+  is_done: boolean;
+  order: number;
+  session: number | null;
+  user: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Backend tự lọc theo phiên đang chạy (nếu có), không thì lấy todo không gắn
+// phiên. page_size lớn để lấy hết cho checklist trong phòng.
+export function listTodos(pageSize = 100): Promise<Paginated<Todo>> {
+  return apiFetch<Paginated<Todo>>(`/api/v1/todos/?page_size=${pageSize}`);
+}
+
+export function createTodo(title: string): Promise<Todo> {
+  return apiFetch<Todo>("/api/v1/todos/", {
+    method: "POST",
+    body: JSON.stringify({ title }),
+  });
+}
+
+export function updateTodo(
+  id: number,
+  patch: Partial<Pick<Todo, "title" | "is_done" | "order">>
+): Promise<Todo> {
+  return apiFetch<Todo>(`/api/v1/todos/${id}/`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+}
+
+export function deleteTodo(id: number): Promise<void> {
+  return apiFetch<void>(`/api/v1/todos/${id}/`, { method: "DELETE" });
+}
+
+// ---- Daily goal ----
+
+// Mục tiêu phút/ngày (gamify.DailyGoalSerializer). achieved_minutes do backend
+// cộng dồn khi kết thúc phiên; chỉ target_minutes là ghi được từ client.
+export interface DailyGoal {
+  id: number;
+  user: number;
+  date: string;
+  target_minutes: number;
+  achieved_minutes: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Mục tiêu hôm nay. Backend get_or_create nên luôn trả về (0/0 nếu chưa đặt).
+export function getDailyGoalToday(): Promise<DailyGoal> {
+  return apiFetch<DailyGoal>("/api/v1/daily-goals/today/");
+}
+
+// Đặt/đổi mục tiêu phút cho hôm nay.
+export function setDailyGoalToday(targetMinutes: number): Promise<DailyGoal> {
+  return apiFetch<DailyGoal>("/api/v1/daily-goals/today/", {
+    method: "POST",
+    body: JSON.stringify({ target_minutes: targetMinutes }),
+  });
+}
+
+// Một ngày trong lịch chuỗi (gamify.DailyGoalHistoryDaySerializer). achieved =
+// đã đạt mục tiêu hôm đó → ngày này được tính vào streak (tô sáng "ngọn lửa").
+export interface DailyGoalHistoryDay {
+  date: string;
+  target_minutes: number;
+  achieved_minutes: number;
+  achieved: boolean;
+}
+
+// Lịch sử chuỗi học kiểu Duolingo: số streak hiện tại/dài nhất + danh sách ngày
+// (cũ → mới) để vẽ lịch ngọn lửa.
+export interface DailyGoalHistory {
+  current_streak: number;
+  longest_streak: number;
+  days: DailyGoalHistoryDay[];
+}
+
+// N ngày gần nhất tính tới hôm nay (mặc định 30, backend kẹp 1..365).
+export function getDailyGoalHistory(days = 30): Promise<DailyGoalHistory> {
+  return apiFetch<DailyGoalHistory>(`/api/v1/daily-goals/history/?days=${days}`);
+}
+
+// ---- Leaderboard ----
+
+// Thông tin user gọn trong bảng xếp hạng (gamify.LeaderboardUserSerializer).
+export interface LeaderboardUser {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string;
+  profile_picture: string | null;
+  level: number;
+  xp: number;
+}
+
+// Một dòng xếp hạng: thứ hạng + user + tổng phút tập trung trong tuần.
+export interface LeaderboardEntry {
+  rank: number;
+  user: LeaderboardUser;
+  total_minutes: number;
+}
+
+// Bảng xếp hạng tuần (gamify.WeeklyLeaderboardSerializer). current_user là dòng
+// của chính người đang đăng nhập (kể cả khi nằm ngoài top) — null nếu tuần này
+// chưa có phiên học nào được tính.
+export interface WeeklyLeaderboard {
+  week: { start: string; end: string };
+  results: LeaderboardEntry[];
+  current_user: LeaderboardEntry | null;
+}
+
+// Top `limit` người học chăm nhất tuần này (theo tổng focus_minutes).
+export function getWeeklyLeaderboard(limit = 10): Promise<WeeklyLeaderboard> {
+  return apiFetch<WeeklyLeaderboard>(
+    `/api/v1/leaderboard/weekly/?limit=${limit}`
+  );
 }
 
 // Trích thông báo lỗi gọn gàng từ response của backend (DRF) để hiển thị cho user.

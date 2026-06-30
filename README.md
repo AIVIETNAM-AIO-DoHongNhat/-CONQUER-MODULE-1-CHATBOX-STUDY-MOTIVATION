@@ -4,6 +4,17 @@ Giao diện web của **AIOtivation** — phòng học ảo giúp bạn _học c
 
 ---
 
+## Tính năng chính
+
+- **Phòng học ảo** — vào phòng, bật cam/mic, đồng hồ **Pomodoro** (focus/nghỉ theo chu kỳ), ghi chú nhanh tự lưu.
+- **Công việc (Todos)** — checklist gắn theo phiên học, nút nổi mở nhanh ở mọi nơi.
+- **Mục tiêu & chuỗi học** — đặt mục tiêu phút/ngày, theo dõi **streak** kiểu Duolingo + lịch đóng góp kiểu GitHub.
+- **Bảng xếp hạng tuần** — podium top 3 + vị trí của bạn, tính theo tổng thời gian tập trung.
+- **Huy hiệu** — bộ sưu tập thành tích: badge đã mở thì sáng, chưa mở thì mờ kèm điều kiện.
+- **Bo** — linh vật "giữ lửa": nút nổi chat động viên, có trạng thái _đang nghĩ_, xuất hiện ở mọi trang.
+
+---
+
 ## Công nghệ
 
 | Hạng mục | Sử dụng |
@@ -71,21 +82,34 @@ src/
 │  ├─ (app)/               # Nhóm route ứng dụng (có Header + Footer)
 │  │  ├─ page.tsx          #   Trang chủ (landing)
 │  │  ├─ about/            #   Về chúng tôi
-│  │  ├─ profile/          #   Hồ sơ cá nhân + chỉnh sửa
-│  │  ├─ rooms/            #   Phòng học
+│  │  ├─ profile/          #   Hồ sơ + chuỗi học (StreakGrid) + huy hiệu (BadgeGrid)
+│  │  ├─ rooms/            #   Phòng học (Pomodoro, ghi chú, thành viên)
+│  │  ├─ leaderboard/      #   Bảng xếp hạng tuần (podium top 3)
 │  │  └─ todos/            #   Công việc
+│  ├─ (app)/layout.tsx     # Header + Footer + BoWidget (nút nổi chat Bo)
 │  ├─ layout.tsx           # Layout gốc + font + Providers
-│  └─ globals.css          # Tailwind + keyframes (toast, auth, …)
+│  └─ globals.css          # Tailwind + keyframes (toast, auth, bo, …)
 ├─ components/
-│  ├─ Header.tsx           # Điều hướng + avatar/đăng xuất theo trạng thái đăng nhập
-│  ├─ Footer.tsx
+│  ├─ Header.tsx           # Điều hướng + avatar + chuỗi/mục tiêu nhanh
+│  ├─ BoWidget.tsx         # Nút nổi mở chat với Bo (mọi trang)
+│  ├─ BoChat.tsx, BoMascot.tsx       # Khung chat + avatar linh vật Bo
+│  ├─ Timer.tsx, RoomShell.tsx       # Đồng hồ Pomodoro + khung phòng học
+│  ├─ TodoList.tsx, TodoWidget.tsx   # Checklist công việc (+ nút nổi)
+│  ├─ DailyGoal.tsx, HeaderDailyGoal.tsx, HeaderStreak.tsx  # Mục tiêu phút/ngày + chuỗi
+│  ├─ StreakGrid.tsx, StreakCalendar.tsx  # Lịch chuỗi học (GitHub / lịch)
+│  ├─ BadgeGrid.tsx        # Bộ sưu tập huy hiệu (mở/chưa mở + điều kiện)
 │  ├─ Toast.tsx            # Hệ thống thông báo dùng chung (useToast)
 │  ├─ Providers.tsx        # QueryClientProvider + ToastProvider
-│  ├─ AuthShell.tsx        # Khung dùng chung cho trang auth
+│  ├─ AuthShell.tsx, Footer.tsx
 │  └─ icons.tsx, Logo.tsx, Reveal.tsx, …
 ├─ hooks/
 │  ├─ useAuth.ts           # login / register / verify / reset (TanStack mutation)
-│  └─ useProfile.ts        # đọc & cập nhật hồ sơ
+│  ├─ useProfile.ts        # đọc & cập nhật hồ sơ
+│  ├─ useRooms.ts          # danh sách / chi tiết phòng
+│  ├─ useTodos.ts          # CRUD công việc (optimistic update)
+│  ├─ useDailyGoal.ts      # mục tiêu phút/ngày + lịch sử chuỗi
+│  ├─ useLeaderboard.ts    # bảng xếp hạng tuần
+│  └─ useBadges.ts         # bộ sưu tập huy hiệu
 └─ lib/
    └─ api.ts               # API client + quản lý token + auto-refresh
 ```

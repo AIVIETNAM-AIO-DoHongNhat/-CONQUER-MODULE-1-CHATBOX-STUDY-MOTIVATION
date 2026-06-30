@@ -158,3 +158,55 @@ body {
     animation-delay: 0.57s;
   }
 }
+
+/* ---------- Chat với Bo ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* Bong bóng chat hiện lên mượt khi thêm tin nhắn mới */
+  @keyframes boBubbleIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .boBubble {
+    animation: boBubbleIn 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  /* Ba chấm "đang nghĩ" nảy nhẹ so le */
+  @keyframes boDot {
+    0%,
+    80%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.45;
+    }
+    40% {
+      transform: translateY(-4px);
+      opacity: 1;
+    }
+  }
+
+  .boDot {
+    animation: boDot 1.2s ease-in-out infinite;
+  }
+
+  /* Avatar Bo bồng bềnh nhẹ */
+  @keyframes boFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  .boFloat {
+    animation: boFloat 3.4s ease-in-out infinite;
+  }
+}
