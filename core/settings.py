@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 import dotenv
+import dj_database_url
 import cloudinary
 from datetime import timedelta
 
@@ -119,9 +120,11 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASE_ENGINE = os.getenv("DATABASE_ENGINE", "django.db.backends.postgresql")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DATABASE_ENGINE == "django.db.backends.sqlite3":
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+elif os.getenv("DATABASE_ENGINE", "django.db.backends.postgresql") == "django.db.backends.sqlite3":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
