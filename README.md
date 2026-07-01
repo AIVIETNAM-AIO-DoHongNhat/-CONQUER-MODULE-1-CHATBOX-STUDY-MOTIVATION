@@ -1,104 +1,145 @@
-# Axion - Project Management Tool API
+# AIOtivation · Backend
 
-This repository contains the backend API for Axion, a project management tool. It's built with Python, Django, and Django REST Framework, providing a robust and scalable foundation for managing users, sites, and more.
+API của **AIOtivation** — phòng học ảo giúp _học cùng nhau, giữ nhịp tập trung_. Xây bằng **Django + Django REST Framework**, xác thực JWT, cấp token realtime cho **LiveKit**.
 
-## Features
+---
 
-*   **Complete User Authentication**: Registration with email OTP verification, login, and secure password management (change and recovery).
-*   **JWT-Based Sessions**: Stateless and secure authentication using JSON Web Tokens.
-*   **Site Management**: Full CRUD (Create, Read, Update, Delete) functionality for project sites.
-*   **Role-Based Access**: Automatic admin role assignment to the user who creates a site.
-*   **Service-Oriented Architecture**: Business logic is cleanly decoupled into a dedicated service layer (`SiteService`, `MailService`, `AuthService`).
-*   **Automatic API Documentation**: Auto-generated OpenAPI schema and interactive Swagger UI via `drf-spectacular`.
-*   **Custom Pagination**: A reusable, custom pagination component for all list endpoints.
-*   **Comprehensive Test Suite**: A solid foundation of unit and integration tests to ensure code quality and reliability.
+## Tính năng chính
 
-## Tech Stack
+- **Xác thực** — đăng ký + xác thực **OTP qua email**, đăng nhập, đổi/khôi phục mật khẩu; phiên **JWT** (access + refresh).
+- **Phòng học (rooms)** — quản lý phòng học ảo.
+- **Phiên học (sessions)** — bắt đầu/kết thúc phiên trong phòng, **thời lượng dự kiến** (`planned_minutes`, mặc định 30, khoảng 1–600′), tự **đóng phiên quá hạn**, tính `focus_minutes` giới hạn theo thời lượng dự kiến & thời gian thực.
+- **Video/audio realtime (LiveKit)** — endpoint ký **access token** để client kết nối thẳng tới LiveKit Cloud (media không đi qua backend).
+- **Gamification (gamify)** — mục tiêu phút/ngày, chuỗi học (streak), huy hiệu, bảng xếp hạng tuần.
+- **Công việc (todos)** — checklist gắn theo phiên học.
+- **API docs** — OpenAPI + Swagger UI qua `drf-spectacular`.
 
-*   **Backend**: Python, Django, Django REST Framework
-*   **Database**: PostgreSQL
-*   **Authentication**: `djangorestframework-simplejwt`
-*   **API Documentation**: `drf-spectacular`
-*   **Environment Configuration**: `python-dotenv`
-*   **Email**: Django's built-in SMTP support
+---
 
-## Getting Started
+## Công nghệ
 
-Follow these instructions to get the project up and running on your local machine.
+| Hạng mục | Sử dụng |
+|---|---|
+| Framework | Django, Django REST Framework |
+| Database | PostgreSQL |
+| Xác thực | `djangorestframework-simplejwt` |
+| Realtime | LiveKit (`livekit-api` — ký token phía server) |
+| Ảnh / media | Cloudinary |
+| API docs | `drf-spectacular` |
+| Cấu hình | `python-dotenv` |
 
-### Prerequisites
+---
 
-*   Python 3.10+
-*   PostgreSQL 12+
-*   A package manager like `pip`.
+## Yêu cầu
 
-### Installation & Setup
+- **Python 3.10+**
+- **PostgreSQL 12+**
+- `pip` (khuyến khích dùng virtualenv)
 
-1.  **Clone the repository:**
-    ```sh
-    git clone <your-repository-url>
-    cd project-managements
-    ```
+---
 
-2.  **Install dependencies:**
-    *(It's recommended to use a virtual environment)*
-    ```sh
-    pip install -r requirements.txt
-    ```
+## Cài đặt & chạy
 
-3.  **Configure environment variables:**
-    Create a `.env` file in the project root and add the necessary configuration. Use the following template:
+```sh
+# 1. Cài dependencies (nên dùng virtualenv)
+pip install -r requirements.txt
 
-    ```env
-    # Django
-    DJANGO_SECRET_KEY="your-strong-secret-key"
+# 2. Tạo file .env (xem mục Biến môi trường)
 
-    # Database
-    DATABASE_NAME="axion_db"
-    DATABASE_USER="axion_user"
-    DATABASE_PASSWORD="your-db-password"
-    DATABASE_HOST="localhost"
-    DATABASE_PORT="5432"
+# 3. Chạy migrations
+python manage.py migrate
 
-    # JWT
-    JWT_SECRET_KEY="your-jwt-secret-key"
-    ACCESS_TOKEN_LIFETIME="1" # In days
-    REFRESH_TOKEN_LIFETIME="7" # In days
+# 4. Chạy dev server (http://127.0.0.1:8000/)
+python manage.py runserver
+```
 
-    # Email (Example for Gmail SMTP)
-    EMAIL_HOST="smtp.gmail.com"
-    EMAIL_PORT="587"
-    EMAIL_USE_TLS="True"
-    EMAIL_HOST_USER="your-email@gmail.com"
-    EMAIL_HOST_PASSWORD="your-app-password"
-    DEFAULT_FROM_EMAIL="your-email@gmail.com"
+---
 
-    # Application URLs
-    FRONTEND_URL="http://localhost:3000"
-    APP_LOGO="https://your-app-logo-url.com/logo.png"
-    ```
+## Biến môi trường
 
-4.  **Run database migrations:**
-    ```sh
-    python manage.py migrate
-    ```
+Tạo file `.env` ở thư mục `backend` (xem đầy đủ trong [`.env.example`](./.env.example)):
 
-5.  **Run the development server:**
-    ```sh
-    python manage.py runserver
-    ```
-    The API will be available at `http://127.0.0.1:8000/`.
+```env
+# Database
+DATABASE_NAME=...
+DATABASE_USER=...
+DATABASE_PASSWORD=...
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+
+# Django / JWT
+DJANGO_SECRET_KEY=...
+JWT_SECRET_KEY=...
+ACCESS_TOKEN_LIFETIME=1   # ngày
+REFRESH_TOKEN_LIFETIME=7  # ngày
+
+# Email (OTP đăng ký, khôi phục mật khẩu)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=...
+EMAIL_HOST_PASSWORD=...
+DEFAULT_FROM_EMAIL=...
+FRONTEND_URL=http://localhost:3000
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+
+# LiveKit Cloud (https://cloud.livekit.io → Settings → Keys)
+LIVEKIT_API_KEY=...
+LIVEKIT_API_SECRET=...
+LIVEKIT_URL=wss://your-project.livekit.cloud
+```
+
+---
+
+## Cấu trúc ứng dụng
+
+| App | Vai trò |
+|---|---|
+| `authentication` | Đăng ký/đăng nhập, OTP email, JWT, đổi/khôi phục mật khẩu |
+| `rooms` | Phòng học ảo |
+| `session` | Phiên học (`planned_minutes`, tự đóng phiên quá hạn) + **token LiveKit** |
+| `gamify` | Mục tiêu ngày, chuỗi học, huy hiệu, bảng xếp hạng |
+| `todos` | Công việc gắn theo phiên |
+| `core` | Cấu hình dự án, `settings.py`, `urls.py` |
+
+Tất cả API nằm dưới tiền tố `/api/v1/`.
+
+---
+
+## LiveKit (video/audio realtime)
+
+- **Endpoint:** `POST /api/v1/livekit/token/` với body `{ "room_id": <id> }` (yêu cầu JWT).
+- **Trả về:** `{ token, url, room, identity }`. Token được **ký ở server** bằng `LIVEKIT_API_SECRET` (không lộ ra client), chỉ cho phép tham gia đúng phòng của `room_id`.
+- **Media** đi thẳng client ↔ LiveKit Cloud, **không qua backend** — endpoint chỉ ký JWT (vài ms).
+- Nếu thiếu cấu hình `LIVEKIT_*`, endpoint trả lỗi và frontend hiển thị "chưa kết nối video".
+
+---
 
 ## API Documentation
 
-Once the server is running, you can access the interactive Swagger UI to explore and test the API endpoints.
+Khi server đang chạy:
 
-*   **Swagger UI**: `http://127.0.0.1:8000/api/docs/`
-*   **OpenAPI Schema**: `http://127.0.0.1:8000/api/schema/`
+- **Swagger UI**: `http://127.0.0.1:8000/api/docs/`
+- **OpenAPI Schema**: `http://127.0.0.1:8000/api/schema/`
 
-## Running Tests
+---
 
-To run the full test suite and ensure everything is working as expected:
+## Chạy test
+
 ```sh
 python manage.py test
+```
+
+---
+
+## Chạy bằng Docker (tùy chọn)
+
+Toàn bộ stack (backend + frontend + Postgres) chạy bằng `docker-compose.yaml` ở thư mục gốc dự án:
+
+```sh
+docker compose up -d
 ```
