@@ -221,6 +221,7 @@ export interface StudySession {
   room: number;
   started_at: string;
   ended_at: string | null;
+  planned_minutes: number;
   focus_minutes: number | null;
   status: "running" | "completed";
 }
@@ -278,11 +279,19 @@ export async function getActiveSession(): Promise<StudySession | null> {
   }
 }
 
-// Bắt đầu phiên trong một phòng cụ thể — backend yêu cầu room_id.
-export function startSession(roomId: string | number): Promise<StudySession> {
+// Bắt đầu phiên trong một phòng cụ thể — backend yêu cầu room_id. plannedMinutes
+// là thời lượng học dự kiến do người dùng chọn (đếm ngược đơn); bỏ trống thì
+// backend dùng mặc định.
+export function startSession(
+  roomId: string | number,
+  plannedMinutes?: number,
+): Promise<StudySession> {
   return apiFetch<StudySession>("/api/v1/sessions/start/", {
     method: "POST",
-    body: JSON.stringify({ room_id: roomId }),
+    body: JSON.stringify({
+      room_id: roomId,
+      ...(plannedMinutes !== undefined ? { planned_minutes: plannedMinutes } : {}),
+    }),
   });
 }
 
@@ -329,6 +338,26 @@ export function listRooms(pageSize = 100): Promise<Paginated<Room>> {
 // Chi tiết một phòng (rooms.RoomViewSet.retrieve).
 export function getRoom(id: string | number): Promise<Room> {
   return apiFetch<Room>(`/api/v1/rooms/${id}/`);
+}
+
+// ---- LiveKit ----
+
+// Token + wss URL để client kết nối realtime tới LiveKit Cloud. Backend ký token
+// bằng API_SECRET (bí mật) và trả về URL; media đi thẳng client ↔ LiveKit Cloud,
+// KHÔNG qua backend. `room` là tên phòng LiveKit (room-<id>), `identity` = user id.
+export interface LivekitToken {
+  token: string;
+  url: string;
+  room: string;
+  identity: string;
+}
+
+// Xin token tham gia phòng LiveKit tương ứng với room hiện tại.
+export function getLivekitToken(roomId: string | number): Promise<LivekitToken> {
+  return apiFetch<LivekitToken>("/api/v1/livekit/token/", {
+    method: "POST",
+    body: JSON.stringify({ room_id: roomId }),
+  });
 }
 
 // ---- Todos ----

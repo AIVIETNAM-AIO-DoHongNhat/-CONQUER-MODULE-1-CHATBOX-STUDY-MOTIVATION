@@ -179,7 +179,7 @@ export default function LandingPage() {
               Không ồn ào - chỉ có sự tập trung.
             </p>
             <div className={styles.heroActions}>
-              <Link href="/login" className={styles.btnPrimary}>
+              <Link href="/rooms" className={styles.btnPrimary}>
                 Vào phòng học
               </Link>
               <a href="#ai" className={styles.btnGhost}>

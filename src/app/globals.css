@@ -210,3 +210,26 @@ body {
     animation: boFloat 3.4s ease-in-out infinite;
   }
 }
+
+/* ---------- Đồng hồ cát trong modal thiết lập phiên ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* Giữ thẳng một lúc rồi lật úp — mô phỏng lật đồng hồ cát để chảy tiếp. */
+  @keyframes hourglassFlip {
+    0%,
+    42% {
+      transform: rotate(0deg);
+    }
+    50%,
+    92% {
+      transform: rotate(180deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .hourglassFlip {
+    animation: hourglassFlip 4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    transform-origin: center;
+  }
+}

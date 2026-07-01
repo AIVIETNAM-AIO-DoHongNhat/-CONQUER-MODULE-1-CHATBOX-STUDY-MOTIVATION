@@ -6,6 +6,7 @@
 import { useWeeklyLeaderboard } from "@/hooks/useLeaderboard";
 import { useProfile } from "@/hooks/useProfile";
 import { FlameIcon, MedalIcon } from "@/components/icons";
+import Reveal from "@/components/Reveal";
 import type { LeaderboardEntry, LeaderboardUser } from "@/lib/api";
 
 // Tên hiển thị: ưu tiên họ tên, rồi username, cuối cùng phần trước @ của email.
@@ -185,6 +186,7 @@ export default function LeaderboardPage() {
       style={{ fontFamily: "var(--font-be-vietnam), system-ui, sans-serif" }}
     >
       {/* Tiêu đề */}
+      <Reveal>
       <div className="flex items-center gap-1.5 text-[#b5764a]">
         <MedalIcon size={16} strokeWidth={1.8} />
         <span className="text-xs font-semibold uppercase tracking-wide">
@@ -203,8 +205,9 @@ export default function LeaderboardPage() {
         Ai tập trung học nhiều nhất tuần này? Thứ hạng tính theo tổng thời gian
         học.
       </p>
+      </Reveal>
 
-      <div className="mt-7 space-y-5">
+      <Reveal delay={100} className="mt-7 space-y-5">
         {isLoading && (
           <div className="rounded-3xl border border-[#e8e6df] bg-white p-5 shadow-[0_18px_44px_-28px_rgba(27,27,25,0.25)]">
             <div className="mb-6 h-28 animate-pulse rounded-2xl bg-[#f3f1ea]" />
@@ -287,7 +290,7 @@ export default function LeaderboardPage() {
             )}
           </>
         )}
-      </div>
+      </Reveal>
     </div>
   );
 }

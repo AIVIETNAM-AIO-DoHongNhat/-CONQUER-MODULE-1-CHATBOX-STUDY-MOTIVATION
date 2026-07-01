@@ -4,7 +4,9 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useRooms } from "@/hooks/useRooms";
-import { readApiError, type Room } from "@/lib/api";
+import { getAccessToken, readApiError, type Room } from "@/lib/api";
+import { useToast } from "@/components/Toast";
+import Reveal from "@/components/Reveal";
 import {
   FlaskIcon,
   RocketIcon,
@@ -33,8 +35,22 @@ function getCategoryVisual(category?: string | null): Visual {
 }
 
 function RoomCard({ room }: { room: Room }) {
+  const router = useRouter();
+  const toast = useToast();
   const v = getCategoryVisual(room.category);
   const isFull = room.active_user_count >= room.max_users;
+
+  // Vào phòng cần đăng nhập (RoomShell gọi API cần token). Chưa đăng nhập thì
+  // chặn điều hướng, báo và đưa tới trang đăng nhập.
+  function handleJoin(e: React.MouseEvent) {
+    if (getAccessToken()) return; // đã đăng nhập → để Link điều hướng bình thường
+    e.preventDefault();
+    toast.warning(
+      "Bạn cần đăng nhập",
+      "Hãy đăng nhập để tham gia phòng học. Chưa có tài khoản thì đăng ký nhé."
+    );
+    router.push("/login");
+  }
   const pct = room.max_users
     ? Math.min(100, Math.round((room.active_user_count / room.max_users) * 100))
     : 0;
@@ -92,6 +108,7 @@ function RoomCard({ room }: { room: Room }) {
 
       <Link
         href={`/rooms/${room.id}`}
+        onClick={handleJoin}
         className="mt-4 inline-flex items-center justify-center rounded-xl bg-[#7a9e7e] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#6b8d6f]"
       >
         {isFull ? "Vào xem" : "Join phòng"}
@@ -165,7 +182,7 @@ function RoomsPageContent() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       {/* Tiêu đề */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <Reveal className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-xs font-semibold uppercase tracking-wide text-[#5f8a64]">
             Phòng học theo track
@@ -182,10 +199,10 @@ function RoomsPageContent() {
             {rooms.length} phòng đang mở
           </span>
         )}
-      </div>
+      </Reveal>
 
       {/* Thanh tìm kiếm + lọc category */}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <Reveal delay={80} className="mt-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <svg
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -247,8 +264,9 @@ function RoomsPageContent() {
             ))}
           </select>
         )}
-      </div>
+      </Reveal>
 
+      <Reveal delay={160}>
       {/* Loading state */}
       {isLoading && (
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -344,6 +362,7 @@ function RoomsPageContent() {
           </div>
         </div>
       )}
+      </Reveal>
     </div>
   );
 }

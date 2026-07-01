@@ -43,7 +43,7 @@ export default function BoWidget() {
   return (
     <div
       ref={ref}
-      className="fixed bottom-6 left-6 z-40 flex flex-col items-start"
+      className="pointer-events-none fixed bottom-6 left-6 z-40 flex flex-col items-start"
       style={{ fontFamily: "var(--font-be-vietnam), system-ui, sans-serif" }}
     >
       {/* Popover chat */}
@@ -52,7 +52,7 @@ export default function BoWidget() {
         aria-hidden={!open}
         className={`mb-3 w-[min(23rem,calc(100vw-3rem))] origin-bottom-left transition duration-150 ${
           open
-            ? "scale-100 opacity-100"
+            ? "pointer-events-auto scale-100 opacity-100"
             : "pointer-events-none translate-y-1 scale-95 opacity-0"
         }`}
       >
@@ -68,7 +68,7 @@ export default function BoWidget() {
         aria-expanded={open}
         aria-controls="bo-popover"
         aria-label={open ? "Đóng cửa sổ chat với Bo" : "Trò chuyện với Bo"}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full border border-[#ece4d6] bg-white text-[#6b6b66] shadow-lg transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-[#7a9e7e]/25"
+        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full border border-[#ece4d6] bg-white text-[#6b6b66] shadow-lg transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-[#7a9e7e]/25"
       >
         {open ? <ChevronDownIcon /> : <BoMascot size={42} />}
 

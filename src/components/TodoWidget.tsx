@@ -57,7 +57,7 @@ export default function TodoWidget() {
   return (
     <div
       ref={ref}
-      className="fixed bottom-6 right-6 z-40 flex flex-col items-end"
+      className="pointer-events-none fixed bottom-6 right-6 z-40 flex flex-col items-end"
       style={{ fontFamily: "var(--font-be-vietnam), system-ui, sans-serif" }}
     >
       {/* Popover */}
@@ -66,7 +66,7 @@ export default function TodoWidget() {
         aria-hidden={!open}
         className={`mb-3 w-80 max-w-[calc(100vw-3rem)] origin-bottom-right transition duration-150 ${
           open
-            ? "scale-100 opacity-100"
+            ? "pointer-events-auto scale-100 opacity-100"
             : "pointer-events-none translate-y-1 scale-95 opacity-0"
         }`}
       >
@@ -86,7 +86,7 @@ export default function TodoWidget() {
               ? `Mở danh sách công việc — ${done}/${total} việc xong (${percent}%)`
               : "Mở danh sách công việc"
         }
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#7a9e7e] text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#6b8d6f] focus:outline-none focus:ring-4 focus:ring-[#7a9e7e]/25"
+        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full bg-[#7a9e7e] text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#6b8d6f] focus:outline-none focus:ring-4 focus:ring-[#7a9e7e]/25"
       >
         {/* Vòng tiến độ quanh nút (ẩn khi popover mở) */}
         {!open && total > 0 && (
