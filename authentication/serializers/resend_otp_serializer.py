@@ -19,11 +19,11 @@ class ResendOtpSerializer(serializers.Serializer):
         email = validated_data.get('email')
         user = auth_service.get_user_by_email(email)
         otp, expiry_time = auth_service.generate_otp()
-        user.recovery_token = otp
-        user.recovery_token_expires_at = expiry_time
-        user.save()
         expiry_minutes = int((expiry_time - datetime.now(timezone.utc)).total_seconds() // 60)
         email_heading = "Đặt lại mật khẩu"
         action_description = "Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Hãy dùng mã xác thực bên dưới để xác nhận thay đổi này."
         mail_service.send_otp_email(email, otp, expiry_minutes, email_heading, action_description)
+        user.recovery_token = otp
+        user.recovery_token_expires_at = expiry_time
+        user.save()
         return user

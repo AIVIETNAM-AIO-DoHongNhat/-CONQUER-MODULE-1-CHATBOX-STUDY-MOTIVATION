@@ -9,8 +9,6 @@ __all__ = [
     "RegisterView",
     "LoginView",
     "ResendOtpView",
-    "SetupProfileView",
     "UserView",
     "VerifyEmailView",
-    "RequestRecoveryView",
 ]
