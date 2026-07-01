@@ -15,6 +15,32 @@ from session.serializers import SessionSerializer
 from gamify.services import recalculate_streak, unlock_badges_for_user
 
 
+def close_expired_running_sessions(user, now=None):
+    """Đóng các phiên đang chạy đã quá hạn (người dùng rời đi mà không kết thúc).
+
+    Phiên bỏ dở được ghi 0 phút focus và KHÔNG cộng vào mục tiêu ngày, vì không
+    thể biết thực sự đã học bao lâu. Nhờ vậy khi vào phòng lại sẽ mở phiên mới
+    thay vì khôi phục một phiên đã "hết giờ" và tính công cả khối 120 phút.
+    """
+    now = now or timezone.now()
+    closed = []
+    running = Session.objects.filter(
+        user=user,
+        status=Session.STATUS_RUNNING,
+        ended_at__isnull=True,
+    )
+    for session in running:
+        if session.is_expired(now):
+            session.ended_at = now
+            session.focus_minutes = 0
+            session.status = Session.STATUS_COMPLETED
+            session.save(
+                update_fields=["ended_at", "focus_minutes", "status", "updated_at"]
+            )
+            closed.append(session)
+    return closed
+
+
 class SessionViewSet(viewsets.ModelViewSet):
     queryset = Session.objects.all()
     serializer_class = SessionSerializer
@@ -28,6 +54,7 @@ class SessionViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user, started_at=timezone.now())
 
     def create(self, request, *args, **kwargs):
+        close_expired_running_sessions(request.user)
         active_session = Session.objects.filter(
             user=request.user,
             status=Session.STATUS_RUNNING,
@@ -44,6 +71,7 @@ class SessionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="active")
     def active(self, request):
+        close_expired_running_sessions(request.user)
         active_session = Session.objects.filter(
             user=request.user,
             status=Session.STATUS_RUNNING,
@@ -66,6 +94,34 @@ class SessionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Thời lượng học dự kiến do người dùng chọn. Mặc định nếu client không gửi.
+        planned_raw = request.data.get("planned_minutes")
+        if planned_raw is None:
+            planned_minutes = Session.DEFAULT_PLANNED_MINUTES
+        else:
+            try:
+                planned_minutes = int(planned_raw)
+            except (TypeError, ValueError):
+                return Response(
+                    {"planned_minutes": ["A valid integer is required."]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not (
+                Session.MIN_PLANNED_MINUTES
+                <= planned_minutes
+                <= Session.MAX_PLANNED_MINUTES
+            ):
+                return Response(
+                    {
+                        "planned_minutes": [
+                            f"Must be between {Session.MIN_PLANNED_MINUTES} and "
+                            f"{Session.MAX_PLANNED_MINUTES} minutes."
+                        ]
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        close_expired_running_sessions(request.user)
         existing_session = Session.objects.filter(
             user=request.user,
             status=Session.STATUS_RUNNING,
@@ -99,6 +155,7 @@ class SessionViewSet(viewsets.ModelViewSet):
             user=request.user,
             room=room,
             started_at=timezone.now(),
+            planned_minutes=planned_minutes,
             status=Session.STATUS_RUNNING,
         )
         serializer = self.get_serializer(session)
@@ -127,6 +184,13 @@ class SessionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        now = timezone.now()
+        elapsed_seconds = session.elapsed_seconds(now)
+        # Số phút thực tế đã trôi; phiên rất ngắn (<1') vẫn tính tối thiểu 1'.
+        elapsed_minutes = int(elapsed_seconds // 60)
+        if elapsed_minutes == 0 and elapsed_seconds > 0:
+            elapsed_minutes = 1
+
         focus_minutes_payload = request.data.get("focus_minutes")
         if focus_minutes_payload is not None:
             try:
@@ -139,13 +203,17 @@ class SessionViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
-            ended_at = timezone.now()
-            elapsed_seconds = max(0, (ended_at - session.started_at).total_seconds())
-            focus_minutes = int(elapsed_seconds // 60)
-            if focus_minutes == 0 and elapsed_seconds > 0:
-                focus_minutes = 1
+            focus_minutes = elapsed_minutes
 
-        session.ended_at = timezone.now()
+        if session.is_expired(now):
+            # Phiên bỏ dở: không biết thực sự đã học bao lâu → không ghi công.
+            focus_minutes = 0
+        else:
+            # Chặn trần: không thể focus nhiều phút hơn thời gian thực đã trôi,
+            # cũng không vượt quá thời lượng dự kiến của phiên (chống gửi số phút ảo).
+            focus_minutes = min(focus_minutes, elapsed_minutes, session.planned_minutes)
+
+        session.ended_at = now
         session.focus_minutes = focus_minutes
         session.status = Session.STATUS_COMPLETED
         session.save(update_fields=["ended_at", "focus_minutes", "status", "updated_at"])

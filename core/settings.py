@@ -234,3 +234,9 @@ cloudinary.config(
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# LiveKit (video/audio realtime). API_KEY/API_SECRET dùng để ký token phía server;
+# URL (wss://...) được trả về cho client để kết nối thẳng tới LiveKit Cloud.
+LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY")
+LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET")
+LIVEKIT_URL = os.getenv("LIVEKIT_URL")

@@ -11,6 +11,7 @@ class SessionSerializer(serializers.ModelSerializer):
             "room",
             "started_at",
             "ended_at",
+            "planned_minutes",
             "focus_minutes",
             "status",
         ]

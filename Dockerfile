@@ -14,8 +14,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
+# --timeout/--retries: các gói lớn (livekit-api kéo theo grpc/protobuf/aiohttp) dễ
+# bị ReadTimeout khi mạng chậm; nới thời gian chờ và thử lại để build ổn định.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout 120 --retries 10 -r requirements.txt
 
 # Copy project
 COPY . .
