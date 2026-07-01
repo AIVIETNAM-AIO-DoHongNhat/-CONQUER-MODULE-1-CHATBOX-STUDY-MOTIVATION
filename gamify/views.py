@@ -7,10 +7,12 @@ from drf_spectacular.utils import extend_schema
 from datetime import date
 from gamify.models import Badge, DailyGoal, UserBadge
 from gamify.serializers import (
+    DailyGoalHistorySerializer,
     DailyGoalSerializer,
     UserBadgeSerializer,
     WeeklyLeaderboardSerializer,
 )
+from gamify.services import is_goal_achieved
 from django.db.models import Sum
 from django.utils import timezone
 from datetime import timedelta
@@ -53,6 +55,51 @@ class DailyGoalViewSet(viewsets.GenericViewSet):
             },
             status=status.HTTP_200_OK,
         )
+
+    @extend_schema(responses=DailyGoalHistorySerializer)
+    @action(detail=False, methods=["get"], url_path="history")
+    def history(self, request):
+        # Lịch chuỗi ngày kiểu Duolingo: trả về N ngày gần nhất (tính tới hôm
+        # nay), mỗi ngày kèm cờ achieved để client tô sáng "ngày đã giữ chuỗi".
+        try:
+            days = int(request.query_params.get("days", 30))
+        except (ValueError, TypeError):
+            days = 30
+        days = max(1, min(days, 365))
+
+        today = timezone.localdate()
+        start = today - timedelta(days=days - 1)
+
+        goals = {
+            goal.date: goal
+            for goal in DailyGoal.objects.filter(
+                user=request.user,
+                date__gte=start,
+                date__lte=today,
+            )
+        }
+
+        history = []
+        for offset in range(days):
+            current = start + timedelta(days=offset)
+            goal = goals.get(current)
+            history.append(
+                {
+                    "date": current,
+                    "target_minutes": goal.target_minutes if goal else 0,
+                    "achieved_minutes": goal.achieved_minutes if goal else 0,
+                    "achieved": is_goal_achieved(goal) if goal else False,
+                }
+            )
+
+        serializer = DailyGoalHistorySerializer(
+            {
+                "current_streak": request.user.current_streak,
+                "longest_streak": request.user.longest_streak,
+                "days": history,
+            }
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserBadgeListView(APIView):

@@ -11,6 +11,19 @@ class DailyGoalSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "user", "date", "achieved_minutes", "created_at", "updated_at"]
 
 
+class DailyGoalHistoryDaySerializer(serializers.Serializer):
+    date = serializers.DateField()
+    target_minutes = serializers.IntegerField()
+    achieved_minutes = serializers.IntegerField()
+    achieved = serializers.BooleanField()
+
+
+class DailyGoalHistorySerializer(serializers.Serializer):
+    current_streak = serializers.IntegerField()
+    longest_streak = serializers.IntegerField()
+    days = DailyGoalHistoryDaySerializer(many=True)
+
+
 class UserBadgeSerializer(serializers.ModelSerializer):
     is_unlocked = serializers.SerializerMethodField()
     unlocked_at = serializers.SerializerMethodField()
