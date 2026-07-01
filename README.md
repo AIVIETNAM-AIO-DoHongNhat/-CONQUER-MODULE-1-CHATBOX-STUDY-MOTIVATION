@@ -6,7 +6,7 @@ Giao diện web của **AIOtivation** — phòng học ảo giúp bạn _học c
 
 ## Tính năng chính
 
-- **Phòng học ảo** — vào phòng, bật cam/mic, đồng hồ **Pomodoro** (focus/nghỉ theo chu kỳ), ghi chú nhanh tự lưu.
+- **Phòng học ảo** — vào phòng, **gọi video/mic realtime** cùng thành viên (LiveKit), **đồng hồ đếm ngược** theo thời lượng dự kiến (preset 15/25/45/60/90′), ghi chú nhanh tự lưu.
 - **Công việc (Todos)** — checklist gắn theo phiên học, nút nổi mở nhanh ở mọi nơi.
 - **Mục tiêu & chuỗi học** — đặt mục tiêu phút/ngày, theo dõi **streak** kiểu Duolingo + lịch đóng góp kiểu GitHub.
 - **Bảng xếp hạng tuần** — podium top 3 + vị trí của bạn, tính theo tổng thời gian tập trung.
@@ -22,6 +22,7 @@ Giao diện web của **AIOtivation** — phòng học ảo giúp bạn _học c
 | Framework | Next.js 16 (App Router) |
 | UI | React 19, Tailwind CSS v4 |
 | Data fetching / cache | TanStack Query v5 |
+| Video/audio realtime | LiveKit (`@livekit/components-react`, `livekit-client`) |
 | Ngôn ngữ | TypeScript 5 |
 | Font | Be Vietnam Pro, Geist (next/font) |
 
@@ -76,6 +77,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 src/
 ├─ app/
 │  ├─ (auth)/              # Nhóm route xác thực (không có Header/Footer)
+│  │  ├─ layout.tsx        #   Guard: đã đăng nhập thì redirect về trang chủ
 │  │  ├─ login/            #   Đăng nhập
 │  │  ├─ register/         #   Đăng ký + xác thực OTP (2 bước)
 │  │  └─ forgot-password/  #   Quên / đặt lại mật khẩu
@@ -93,7 +95,7 @@ src/
 │  ├─ Header.tsx           # Điều hướng + avatar + chuỗi/mục tiêu nhanh
 │  ├─ BoWidget.tsx         # Nút nổi mở chat với Bo (mọi trang)
 │  ├─ BoChat.tsx, BoMascot.tsx       # Khung chat + avatar linh vật Bo
-│  ├─ Timer.tsx, RoomShell.tsx       # Đồng hồ Pomodoro + khung phòng học
+│  ├─ Timer.tsx, RoomShell.tsx       # Đồng hồ đếm ngược + khung phòng học (video LiveKit)
 │  ├─ TodoList.tsx, TodoWidget.tsx   # Checklist công việc (+ nút nổi)
 │  ├─ DailyGoal.tsx, HeaderDailyGoal.tsx, HeaderStreak.tsx  # Mục tiêu phút/ngày + chuỗi
 │  ├─ StreakGrid.tsx, StreakCalendar.tsx  # Lịch chuỗi học (GitHub / lịch)
@@ -111,7 +113,7 @@ src/
 │  ├─ useLeaderboard.ts    # bảng xếp hạng tuần
 │  └─ useBadges.ts         # bộ sưu tập huy hiệu
 └─ lib/
-   └─ api.ts               # API client + quản lý token + auto-refresh
+   └─ api.ts               # API client + quản lý token + auto-refresh + token LiveKit
 ```
 
 ---
@@ -133,6 +135,14 @@ const toast = useToast();
 toast.success("Đăng nhập thành công", "Chào mừng bạn quay lại 👋");
 toast.error("Có lỗi", "Email hoặc mật khẩu không đúng.");
 ```
+
+---
+
+## Video/audio realtime (LiveKit)
+
+- Trong phòng học, client xin **token** qua `getLivekitToken(roomId)` ([`lib/api.ts`](./src/lib/api.ts)); backend ký token và trả kèm `wss URL`.
+- Media (video/mic) đi **thẳng client ↔ LiveKit Cloud**, không qua backend. `RoomShell` render tile video, dock bật/tắt cam-mic & toàn màn hình.
+- Không cần biến môi trường ở frontend — cấu hình `LIVEKIT_*` nằm ở **backend**. Nếu backend chưa cấu hình, khung video sẽ báo chưa kết nối.
 
 ---
 
