@@ -1,0 +1,32 @@
+FROM python:3.12-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+# --timeout/--retries: các gói lớn (livekit-api kéo theo grpc/protobuf/aiohttp) dễ
+# bị ReadTimeout khi mạng chậm; nới thời gian chờ và thử lại để build ổn định.
+COPY requirements.txt .
+RUN pip install --no-cache-dir --timeout 120 --retries 10 -r requirements.txt
+
+# Copy project
+COPY . .
+
+# Expose port
+EXPOSE 8000
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Run migrations and start server
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:8000"]

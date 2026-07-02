@@ -1,0 +1,18 @@
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+exclude = '''
+/(
+    migrations
+  | venv
+  | env
+  | .venv
+  | node_modules
+  | static
+  | media
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
