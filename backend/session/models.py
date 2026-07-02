@@ -44,26 +44,15 @@ class Session(BaseModel):
         dù bản ghi vẫn còn status=running trong DB chờ được dọn.
         """
         now = now or timezone.now()
-        planned_duration = ExpressionWrapper(
-            F("planned_minutes") * timedelta(minutes=1),
-            output_field=DurationField(),
-        )
-        return (
+        running = list(
             cls.objects.filter(
                 room=room,
                 status=cls.STATUS_RUNNING,
                 ended_at__isnull=True,
             )
-            .annotate(
-                expires_at=ExpressionWrapper(
-                    F("started_at")
-                    + planned_duration
-                    + timedelta(seconds=cls.EXPIRY_GRACE_SECONDS),
-                    output_field=DateTimeField(),
-                )
-            )
-            .filter(expires_at__gt=now)
         )
+        active_ids = [s.id for s in running if not s.is_expired(now)]
+        return cls.objects.filter(id__in=active_ids)
 
     user = models.ForeignKey(
         "authentication.CustomUser",

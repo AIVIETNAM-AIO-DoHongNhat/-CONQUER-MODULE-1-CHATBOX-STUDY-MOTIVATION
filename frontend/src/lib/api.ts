@@ -507,6 +507,27 @@ export function getWeeklyLeaderboard(limit = 10): Promise<WeeklyLeaderboard> {
   );
 }
 
+// ---- AI Chat ----
+export interface ChatMessage {
+  role: "user" | "bo";
+  text: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+}
+
+export function chatWithBo(
+  message: string,
+  history: ChatMessage[] = [],
+  focusMinutes?: number
+): Promise<ChatResponse> {
+  return apiFetch<ChatResponse>("/api/v1/sessions/chat/", {
+    method: "POST",
+    body: JSON.stringify({ message, history, focus_minutes: focusMinutes }),
+  });
+}
+
 // Trích thông báo lỗi gọn gàng từ response của backend (DRF) để hiển thị cho user.
 export function readApiError(err: unknown, fallback = "Có lỗi xảy ra, thử lại sau."): string {
   if (err instanceof ApiError) {

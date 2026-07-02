@@ -199,3 +199,21 @@ class SessionAndGoalTests(AuthenticationTestCase):
         self.assertFalse(
             DailyGoal.objects.filter(user=self.user, date=date.today()).exists()
         )
+
+    def test_ai_chat_endpoint_missing_message(self):
+        """Test AI Chat endpoint returns 400 Bad Request when message is missing."""
+        response = self.client.post("/api/v1/sessions/chat/", {}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("detail", response.data)
+
+    def test_ai_chat_endpoint_fallback(self):
+        """Test AI Chat endpoint fallback reply when using default env configuration."""
+        response = self.client.post(
+            "/api/v1/sessions/chat/",
+            {"message": "Chào Bo"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("reply", response.data)
+        self.assertTrue(len(response.data["reply"]) > 0)
+

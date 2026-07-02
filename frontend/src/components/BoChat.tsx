@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BoMascot } from "./BoMascot";
+import { chatWithBo } from "@/lib/api";
 
 type Role = "bo" | "user";
 
@@ -93,8 +94,43 @@ function MinimizeIcon({ size = 18 }: { size?: number }) {
 }
 
 /* ── Bong bóng chat ────────────────────────────────────────────────────── */
+function extractYoutubeId(text: string): string | null {
+  const match = text.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/);
+  return match ? match[1] : null;
+}
+
+function YoutubeCard({ videoId }: { videoId: string }) {
+  return (
+    <div className="mt-3 overflow-hidden rounded-xl border border-[#efece4] bg-white shadow-sm w-full max-w-[280px]">
+      <iframe
+        width="100%"
+        height="150"
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="rounded-t-xl"
+      />
+      <div className="p-2 text-[11px] font-semibold text-[#1b1b19] flex justify-between items-center bg-[#fbfaf6]">
+        <span>🎵 Nhạc nhẹ thư giãn cùng Bo</span>
+        <a
+          href={`https://www.youtube.com/watch?v=${videoId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#9a6b3f] hover:underline shrink-0"
+        >
+          Xem trên YT ↗
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function MessageRow({ msg }: { msg: ChatMsg }) {
   const isBo = msg.role === "bo";
+  const youtubeId = extractYoutubeId(msg.text);
+
   return (
     <div className={`boBubble flex items-end gap-2.5 ${isBo ? "" : "flex-row-reverse"}`}>
       {isBo && (
@@ -109,7 +145,8 @@ function MessageRow({ msg }: { msg: ChatMsg }) {
             : "rounded-2xl rounded-br-md bg-[#1b1b19] text-[#f7f6f1]"
         }`}
       >
-        {msg.text}
+        <div>{msg.text}</div>
+        {youtubeId && <YoutubeCard videoId={youtubeId} />}
       </div>
     </div>
   );
@@ -134,18 +171,64 @@ function ThinkingRow() {
   );
 }
 
-export default function BoChat({ onClose }: { onClose?: () => void }) {
+export default function BoChat({
+  onClose,
+  focusMinutes = 0,
+  roomId,
+}: {
+  onClose?: () => void;
+  focusMinutes?: number;
+  roomId?: string | number;
+}) {
   const [messages, setMessages] = useState<ChatMsg[]>([
     { id: 0, role: "bo", text: GREETING },
   ]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
 
+  const [reminderInterval, setReminderInterval] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    return Number(localStorage.getItem("bo-reminder-interval") ?? "0");
+  });
+
   const nextId = useRef(1);
   const lastBoReply = useRef("");
   const replyTimer = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const lastRemindedMinute = useRef<number>(0);
+  const isFirstProgress = useRef(true);
+
+  // Lưu cấu hình nhắc nhở
+  useEffect(() => {
+    localStorage.setItem("bo-reminder-interval", String(reminderInterval));
+  }, [reminderInterval]);
+
+  // Khởi tạo mốc đã nhắc ban đầu để tránh bị nhắc trùng ngay khi vào phòng
+  useEffect(() => {
+    if (focusMinutes > 0 && isFirstProgress.current) {
+      lastRemindedMinute.current = focusMinutes;
+      isFirstProgress.current = false;
+    }
+  }, [focusMinutes]);
+
+  // Đếm giờ và nhắc nhở giải lao
+  useEffect(() => {
+    if (reminderInterval > 0 && focusMinutes > 0 && focusMinutes % reminderInterval === 0) {
+      if (focusMinutes !== lastRemindedMinute.current) {
+        lastRemindedMinute.current = focusMinutes;
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: nextId.current++,
+            role: "bo",
+            text: `Bạn đã học tập trung được ${focusMinutes} phút rồi đó! Hãy tạm nghỉ ngơi, vươn vai thư giãn 5 phút nhé! Bo đợi bạn ở đây. ☕`
+          }
+        ]);
+      }
+    }
+  }, [focusMinutes, reminderInterval]);
 
   // Tự cuộn xuống cuối mỗi khi có tin mới hoặc Bo bắt đầu nghĩ.
   useEffect(() => {
@@ -159,7 +242,7 @@ export default function BoChat({ onClose }: { onClose?: () => void }) {
   }, []);
 
   const send = useCallback(
-    (raw: string) => {
+    async (raw: string) => {
       const text = raw.trim();
       if (!text || thinking) return;
 
@@ -169,18 +252,25 @@ export default function BoChat({ onClose }: { onClose?: () => void }) {
       if (textareaRef.current) textareaRef.current.style.height = "auto";
       setThinking(true);
 
-      // Độ trễ theo độ dài câu trả lời để cảm giác Bo "đang gõ" tự nhiên.
-      const reply = generateReply(text, lastBoReply.current);
-      lastBoReply.current = reply;
-      const delay = Math.min(1600, 600 + reply.length * 14);
+      const historyToSend = messages
+        .filter((m) => m.id !== 0)
+        .map((m) => ({ role: m.role, text: m.text }));
 
-      replyTimer.current = window.setTimeout(() => {
+      try {
+        const response = await chatWithBo(text, historyToSend, focusMinutes);
+        const reply = response.reply;
+        lastBoReply.current = reply;
         setMessages((prev) => [...prev, { id: nextId.current++, role: "bo", text: reply }]);
+      } catch (err) {
+        console.error("AI Chat failed, falling back to local reply:", err);
+        const reply = generateReply(text, lastBoReply.current);
+        lastBoReply.current = reply;
+        setMessages((prev) => [...prev, { id: nextId.current++, role: "bo", text: reply }]);
+      } finally {
         setThinking(false);
-        replyTimer.current = null;
-      }, delay);
+      }
     },
-    [thinking],
+    [messages, thinking, focusMinutes],
   );
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -219,16 +309,32 @@ export default function BoChat({ onClose }: { onClose?: () => void }) {
             {thinking ? "Bo đang nghĩ…" : "Luôn sẵn sàng tiếp lửa cho bạn"}
           </p>
         </div>
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Thu gọn cửa sổ chat"
-            className="ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#8a8a83] transition-colors hover:bg-[#f1f0ea] hover:text-[#1b1b19]"
-          >
-            <MinimizeIcon />
-          </button>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs text-[#8a8a83]">
+            <span className="font-medium shrink-0">Nhắc nghỉ:</span>
+            <select
+              value={reminderInterval}
+              onChange={(e) => setReminderInterval(Number(e.target.value))}
+              className="rounded-lg border border-[#e0ddd3] bg-white px-2 py-1 text-xs text-[#1b1b19] outline-none cursor-pointer focus:border-[#7a9e7e] transition-colors"
+            >
+              <option value={0}>Tắt</option>
+              <option value={15}>15 phút</option>
+              <option value={25}>25 phút</option>
+              <option value={30}>30 phút</option>
+              <option value={45}>45 phút</option>
+            </select>
+          </div>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Thu gọn cửa sổ chat"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#8a8a83] transition-colors hover:bg-[#f1f0ea] hover:text-[#1b1b19]"
+            >
+              <MinimizeIcon />
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Khung tin nhắn cuộn được */}

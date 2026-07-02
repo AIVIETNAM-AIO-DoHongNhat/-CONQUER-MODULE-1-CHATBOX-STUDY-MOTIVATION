@@ -867,7 +867,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
               {/* Nội dung - mount cả hai, chỉ ẩn/hiện để giữ nguyên trạng thái */}
               <div className="min-h-0 flex-1 p-3">
                 <div className={`h-full ${fsPanel === "bo" ? "" : "hidden"}`}>
-                  <BoChat />
+                  <BoChat focusMinutes={focusMinutes} roomId={sessionId} />
                 </div>
                 <div className={`h-full overflow-y-auto ${fsPanel === "notes" ? "" : "hidden"}`}>
                   <QuickNotes value={notes} onChange={setNotes} saved={notesSaved} />
