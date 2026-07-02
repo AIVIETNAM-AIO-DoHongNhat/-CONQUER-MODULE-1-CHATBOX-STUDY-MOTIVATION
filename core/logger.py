@@ -5,7 +5,8 @@ logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
-logger.addHandler(handler)
+if not logger.handlers:
+    logger.addHandler(handler)
 
 def log_error(message: str, status_code: int):
     logger.error(f"{message} - Status Code: {status_code}")
