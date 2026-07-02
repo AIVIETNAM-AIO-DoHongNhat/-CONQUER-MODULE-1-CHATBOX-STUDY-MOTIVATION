@@ -14,6 +14,7 @@ const NAV = [
   { href: "/", label: "Trang chủ" },
   { href: "/rooms", label: "Phòng học" },
   { href: "/leaderboard", label: "Xếp hạng" },
+  { href: "/rules", label: "Quy định" },
   { href: "/about", label: "Về chúng tôi" },
 ];
 
@@ -167,7 +168,7 @@ export default function Header() {
                         Thông tin cá nhân
                       </Link>
                       <Link
-                        href="/rooms"
+                        href="/my-rooms"
                         onClick={() => setMenuOpen(false)}
                         className="block rounded-xl px-3 py-2 text-sm text-[#1b1b19] transition-colors hover:bg-[#f1f0ea]"
                       >

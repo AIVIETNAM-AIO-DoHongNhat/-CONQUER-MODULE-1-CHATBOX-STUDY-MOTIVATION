@@ -317,6 +317,9 @@ export interface Room {
   max_users: number;
   is_active: boolean;
   active_user_count: number;
+  // Chủ phòng: id + tên, backend gán tự động từ người tạo (read-only).
+  owner?: number | null;
+  owner_name?: string | null;
 }
 
 // Backend bọc list trong CustomPagination (core/pagination.py).
@@ -338,6 +341,23 @@ export function listRooms(pageSize = 100): Promise<Paginated<Room>> {
 // Chi tiết một phòng (rooms.RoomViewSet.retrieve).
 export function getRoom(id: string | number): Promise<Room> {
   return apiFetch<Room>(`/api/v1/rooms/${id}/`);
+}
+
+// Dữ liệu người dùng nhập khi tạo phòng. owner do backend tự gán, không gửi lên.
+export interface CreateRoomInput {
+  name: string;
+  category?: string;
+  description?: string;
+  max_users: number;
+}
+
+// Tạo phòng mới (rooms.RoomViewSet.create). Cần đăng nhập; backend gán owner =
+// người đang đăng nhập.
+export function createRoom(input: CreateRoomInput): Promise<Room> {
+  return apiFetch<Room>(`/api/v1/rooms/`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
 
 // ---- LiveKit ----

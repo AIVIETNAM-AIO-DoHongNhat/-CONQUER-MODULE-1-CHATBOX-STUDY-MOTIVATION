@@ -8,6 +8,7 @@ import { useToast } from "@/components/Toast";
 import { FlameIcon } from "@/components/icons";
 import StreakGrid from "@/components/StreakGrid";
 import BadgeGrid from "@/components/BadgeGrid";
+import Reveal from "@/components/Reveal";
 
 const fieldClass =
   "w-full rounded-xl border border-[#e0ddd3] bg-white px-4 py-3 text-[15px] outline-none transition-colors placeholder:text-[#b0aea6] focus:border-[#1b1b19] focus:ring-2 focus:ring-[#1b1b19]/10";
@@ -137,11 +138,14 @@ export default function ProfilePage() {
       className="mx-auto max-w-3xl px-4 py-10"
       style={{ fontFamily: "var(--font-be-vietnam), system-ui, sans-serif" }}
     >
-      <h1 className="mb-6 text-2xl font-bold tracking-tight text-[#1b1b19]">
-        Thông tin cá nhân
-      </h1>
+      <Reveal>
+        <h1 className="mb-6 text-2xl font-bold tracking-tight text-[#1b1b19]">
+          Thông tin cá nhân
+        </h1>
+      </Reveal>
 
       {/* Thẻ hồ sơ / form chỉnh sửa */}
+      <Reveal delay={80}>
       <div className="rounded-3xl border border-[#e8e6df] bg-white p-6 sm:p-7">
         {!editing ? (
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -248,8 +252,10 @@ export default function ProfilePage() {
           </form>
         )}
       </div>
+      </Reveal>
 
       {/* Thống kê học tập */}
+      <Reveal delay={160}>
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Cấp độ" value={profile.level ?? 1} />
         <StatCard label="Điểm kinh nghiệm" value={profile.xp ?? 0} />
@@ -264,18 +270,24 @@ export default function ProfilePage() {
         />
         <StatCard label="Chuỗi dài nhất" value={profile.longest_streak ?? 0} />
       </div>
+      </Reveal>
 
       {/* Chuỗi học (lưới kiểu GitHub) */}
+      <Reveal delay={240}>
       <div className="mt-5">
         <StreakGrid weeks={18} />
       </div>
+      </Reveal>
 
       {/* Bộ sưu tập huy hiệu */}
+      <Reveal delay={320}>
       <div className="mt-5">
         <BadgeGrid />
       </div>
+      </Reveal>
 
       {/* Thông tin chi tiết */}
+      <Reveal delay={400}>
       <div className="mt-5 overflow-hidden rounded-3xl border border-[#e8e6df] bg-white">
         <div className="border-b border-[#efece4] px-5 py-3.5">
           <h3 className="text-sm font-semibold text-[#1b1b19]">Chi tiết</h3>
@@ -286,6 +298,7 @@ export default function ProfilePage() {
           <InfoRow label="Tham gia từ" value={formatDate(profile.created_at)} />
         </div>
       </div>
+      </Reveal>
     </div>
   );
 }
