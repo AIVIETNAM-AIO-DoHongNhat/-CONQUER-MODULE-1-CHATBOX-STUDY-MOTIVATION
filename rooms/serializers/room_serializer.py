@@ -20,11 +20,5 @@ class RoomSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "active_user_count"]
 
     def get_active_user_count(self, obj) -> int:
-        return (
-            Session.objects.filter(
-                room=obj, status=Session.STATUS_RUNNING, ended_at__isnull=True
-            )
-            .values("user")
-            .distinct()
-            .count()
-        )
+        # Chỉ đếm phiên còn hiệu lực — phiên ma quá hạn bị loại ngay trong query.
+        return Session.active_in_room(obj).values("user").distinct().count()

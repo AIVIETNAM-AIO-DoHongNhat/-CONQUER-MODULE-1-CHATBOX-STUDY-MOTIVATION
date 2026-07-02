@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.db import models
+from django.db.models import DateTimeField, DurationField, ExpressionWrapper, F
 from django.utils import timezone
 
 from core.models import BaseModel
@@ -31,6 +34,36 @@ class Session(BaseModel):
 
     def is_expired(self, now=None):
         return self.elapsed_seconds(now) > self.planned_seconds() + self.EXPIRY_GRACE_SECONDS
+
+    @classmethod
+    def active_in_room(cls, room, now=None):
+        """Các phiên đang chạy còn hiệu lực trong phòng.
+
+        Loại phiên "ma" (người dùng rời đi không kết thúc) bằng cùng mốc hết hạn
+        với is_expired: quá planned_minutes + EXPIRY_GRACE_SECONDS thì không đếm,
+        dù bản ghi vẫn còn status=running trong DB chờ được dọn.
+        """
+        now = now or timezone.now()
+        planned_duration = ExpressionWrapper(
+            F("planned_minutes") * timedelta(minutes=1),
+            output_field=DurationField(),
+        )
+        return (
+            cls.objects.filter(
+                room=room,
+                status=cls.STATUS_RUNNING,
+                ended_at__isnull=True,
+            )
+            .annotate(
+                expires_at=ExpressionWrapper(
+                    F("started_at")
+                    + planned_duration
+                    + timedelta(seconds=cls.EXPIRY_GRACE_SECONDS),
+                    output_field=DateTimeField(),
+                )
+            )
+            .filter(expires_at__gt=now)
+        )
 
     user = models.ForeignKey(
         "authentication.CustomUser",

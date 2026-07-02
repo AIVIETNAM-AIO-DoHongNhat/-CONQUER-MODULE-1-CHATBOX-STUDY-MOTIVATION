@@ -135,14 +135,7 @@ class SessionViewSet(viewsets.ModelViewSet):
 
         room = get_object_or_404(Room, pk=room_id, is_active=True)
         active_user_count = (
-            Session.objects.filter(
-                room=room,
-                status=Session.STATUS_RUNNING,
-                ended_at__isnull=True,
-            )
-            .values("user")
-            .distinct()
-            .count()
+            Session.active_in_room(room).values("user").distinct().count()
         )
 
         if active_user_count >= room.max_users:
