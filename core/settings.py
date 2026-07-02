@@ -213,10 +213,20 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
+# Mặc định gửi mail qua Gmail SMTP (cấu hình EMAIL_HOST* bên dưới lấy từ .env).
+# Muốn dùng Resend thì đặt EMAIL_BACKEND=anymail.backends.resend.EmailBackend
+# và RESEND_API_KEY trong .env.
 EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND", "anymail.backends.resend.EmailBackend"
+    "EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend"
 )
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "onboarding@resend.dev")
+
+# SMTP (Gmail). Django's smtp backend đọc thẳng các setting này, không tự lấy từ env.
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() in ("true", "1", "yes")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 ANYMAIL = {
     "RESEND_API_KEY": os.getenv("RESEND_API_KEY"),

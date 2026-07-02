@@ -15,6 +15,10 @@ class RoomViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication]
 
+    def perform_create(self, serializer):
+        # Gán chủ phòng là người đang đăng nhập; client không tự đặt được.
+        serializer.save(owner=self.request.user)
+
     @extend_schema(
         summary="Create a new room",
         request=RoomSerializer,

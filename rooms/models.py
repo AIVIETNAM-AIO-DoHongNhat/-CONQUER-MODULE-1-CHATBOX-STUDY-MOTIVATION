@@ -9,6 +9,15 @@ class Room(BaseModel):
     description = models.TextField(blank=True, null=True)
     max_users = models.PositiveIntegerField(default=1)
     is_active = models.BooleanField(default=True)
+    # Người tạo phòng. null=True để phòng seed/cũ (không có người tạo) vẫn hợp lệ;
+    # SET_NULL để xoá user không kéo theo mất phòng.
+    owner = models.ForeignKey(
+        "authentication.CustomUser",
+        on_delete=models.SET_NULL,
+        related_name="owned_rooms",
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Room"
