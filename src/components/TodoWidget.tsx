@@ -83,7 +83,7 @@ export default function TodoWidget() {
           open
             ? "Đóng danh sách công việc"
             : total > 0
-              ? `Mở danh sách công việc — ${done}/${total} việc xong (${percent}%)`
+              ? `Mở danh sách công việc - ${done}/${total} việc xong (${percent}%)`
               : "Mở danh sách công việc"
         }
         className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full bg-[#7a9e7e] text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#6b8d6f] focus:outline-none focus:ring-4 focus:ring-[#7a9e7e]/25"

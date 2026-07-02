@@ -57,9 +57,9 @@ function titleOf(day: DailyGoalHistoryDay): string {
 // Lưới co giãn lấp đầy chiều ngang card: mỗi cột dùng flex-1, ô vuông theo
 // aspect-square nên bề rộng ô = (rộng card − nhãn) / số tuần. GAP là khoảng cách
 // giữa các ô, LABEL_W là bề rộng cột nhãn thứ; CELL chỉ còn dùng cho chú giải.
-const CELL = 11; // px — kích thước ô ở chú giải chân
+const CELL = 11; // px - kích thước ô ở chú giải chân
 const GAP = 3; // px
-const LABEL_W = 26; // px — bề rộng cột nhãn thứ
+const LABEL_W = 26; // px - bề rộng cột nhãn thứ
 
 function Cell({ day }: { day: DailyGoalHistoryDay | null }) {
   if (!day) {
@@ -148,7 +148,7 @@ export default function StreakGrid({ weeks = 53 }: { weeks?: number }) {
         </div>
       </div>
 
-      {/* Lưới đóng góp — co giãn lấp đầy chiều ngang card */}
+      {/* Lưới đóng góp - co giãn lấp đầy chiều ngang card */}
       <div className="mt-5">
         <div className="flex flex-col" style={{ gap: GAP }}>
           {/* Hàng nhãn tháng */}
@@ -164,7 +164,7 @@ export default function StreakGrid({ weeks = 53 }: { weeks?: number }) {
           </div>
 
           <div className="flex" style={{ gap: GAP }}>
-            {/* Nhãn thứ trong tuần — flex-1 để căn theo chiều cao các ô */}
+            {/* Nhãn thứ trong tuần - flex-1 để căn theo chiều cao các ô */}
             <div
               className="flex flex-col"
               style={{ gap: GAP, width: LABEL_W }}
@@ -179,7 +179,7 @@ export default function StreakGrid({ weeks = 53 }: { weeks?: number }) {
               ))}
             </div>
 
-            {/* Các cột tuần — mỗi cột chia đều phần rộng còn lại */}
+            {/* Các cột tuần - mỗi cột chia đều phần rộng còn lại */}
             <div className="flex flex-1" style={{ gap: GAP }}>
               {columns.map((col, ci) => (
                 <div
@@ -199,7 +199,7 @@ export default function StreakGrid({ weeks = 53 }: { weeks?: number }) {
 
       {/* Chân: ghi chú trái · chú giải phải (kiểu GitHub) */}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#9a978f]">
-        <span>Mỗi ngày có học được tô màu — học càng nhiều, màu càng đậm.</span>
+        <span>Mỗi ngày có học được tô màu - học càng nhiều, màu càng đậm.</span>
         <span className="flex items-center gap-1">
           <span>Ít</span>
           {LEVEL_COLORS.map((color) => (

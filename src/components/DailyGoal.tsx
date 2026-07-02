@@ -156,7 +156,7 @@ export default function DailyGoal({ className = "" }: { className?: string }) {
                   <span className="text-2xl font-bold tabular-nums text-[#1b1b19]">
                     {achieved}
                   </span>
-                  <span className="text-sm text-[#6b6b66]">/ {formatMinutes(target)}</span>
+                  <span className="text-sm text-[#6b6b66]">phút / {formatMinutes(target)}</span>
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${

@@ -62,6 +62,98 @@
   font-weight: 600;
 }
 
+/* Chữ nhấn trong tiêu đề hero - gradient xanh → nâu theo palette trang. */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .title strong {
+    background: linear-gradient(115deg, #4f6b53, #7a9e7e 45%, #b5764a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+/* Hai khối màu bồng bềnh sau hero - tạo chiều sâu mà không che chữ. */
+.heroBlob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroBlobA {
+  width: 340px;
+  height: 340px;
+  left: 4%;
+  top: 10%;
+  background: rgba(122, 158, 126, 0.2);
+}
+
+.heroBlobB {
+  width: 300px;
+  height: 300px;
+  right: 2%;
+  top: 28%;
+  background: rgba(181, 118, 74, 0.16);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroBlobA {
+    animation: blobFloat 12s ease-in-out infinite;
+  }
+  .heroBlobB {
+    animation: blobFloat 15s ease-in-out infinite reverse;
+  }
+}
+
+@keyframes blobFloat {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(16px, -28px) scale(1.08);
+  }
+}
+
+/* Hàng avatar + số người học dưới CTA hero. */
+.trustRow {
+  margin-top: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.trustAvatars {
+  display: flex;
+}
+
+.trustAvatars span {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #f7f6f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff;
+  margin-left: -8px;
+}
+
+.trustAvatars span:first-child {
+  margin-left: 0;
+}
+
+.trustText {
+  font-size: 13.5px;
+  color: #8a8a83;
+}
+
 .lead {
   font-size: 19px;
   line-height: 1.7;
@@ -86,12 +178,25 @@
   padding: 15px 30px;
   border-radius: 999px;
   text-decoration: none;
-  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 14px 30px -14px rgba(27, 27, 25, 0.5);
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .btnPrimary:hover {
   opacity: 0.85;
   transform: translateY(-2px);
+  box-shadow: 0 22px 44px -16px rgba(27, 27, 25, 0.55);
+}
+
+/* Biến thể sáng của nút chính - dùng trên nền CTA tối. */
+.btnLight {
+  background: #f7f6f1;
+  color: #1b1b19;
+  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.45);
+}
+
+.btnLight:hover {
+  opacity: 0.92;
 }
 
 .btnGhost {
@@ -206,6 +311,29 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.35);
+}
+
+/* Avatar "thở" nhẹ - phòng học trông sống động hơn. */
+@media (prefers-reduced-motion: no-preference) {
+  .avatarFace {
+    animation: breathe 5s ease-in-out infinite;
+  }
+  .avatar:nth-child(2) .avatarFace {
+    animation-delay: 0.8s;
+  }
+  .avatar:nth-child(3) .avatarFace {
+    animation-delay: 1.6s;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .avatarTimer {
@@ -449,6 +577,126 @@
   font-weight: 300;
 }
 
+/* ---------- Marquee ---------- */
+.marquee {
+  overflow: hidden;
+  border-bottom: 1px solid #e3e1da;
+  padding: 22px 0;
+  /* Mờ dần hai mép để dải chữ trôi vào/ra mềm mại. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+}
+
+.marqueeGroup {
+  display: flex;
+  align-items: center;
+  gap: 44px;
+  padding-right: 44px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marqueeTrack {
+    animation: marqueeScroll 30s linear infinite;
+  }
+}
+
+@keyframes marqueeScroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marqueeItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 44px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9a978f;
+  white-space: nowrap;
+}
+
+.marqueeItem i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c9c6ba;
+}
+
+/* ---------- How it works (3 bước) ---------- */
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.stepCard {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e8e6df;
+  border-radius: 18px;
+  padding: 30px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stepCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.07);
+}
+
+/* Nét đứt nối các bước trên desktop. */
+.stepCard::after {
+  content: "";
+  position: absolute;
+  top: 51px;
+  right: -21px;
+  width: 22px;
+  border-top: 2px dashed #d6d3c8;
+}
+
+.stepsGrid > :last-child .stepCard::after {
+  display: none;
+}
+
+.stepNum {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #7a9e7e, #5f8a64);
+  box-shadow: 0 12px 24px -10px rgba(95, 138, 100, 0.65);
+  margin-bottom: 20px;
+}
+
+.stepTitle {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0 0 10px;
+}
+
+.stepText {
+  font-size: 15px;
+  color: #6b6b66;
+  line-height: 1.65;
+  font-weight: 300;
+  margin: 0;
+}
+
 /* ---------- Tracks ---------- */
 .trackGrid {
   display: grid;
@@ -485,11 +733,12 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 22px;
+  /* Transition đặt ở base để icon mượt cả lúc hover lẫn lúc nhả chuột. */
+  transition: transform 0.25s ease;
 }
 
 .trackCard:hover .trackIcon {
   transform: scale(1.06) rotate(-3deg);
-  transition: transform 0.25s ease;
 }
 
 .trackTitle {
@@ -761,9 +1010,19 @@
 
 /* ---------- Final CTA ---------- */
 .finalCta {
-  border-top: 1px solid #e3e1da;
-  padding: 110px 72px;
+  position: relative;
+  overflow: hidden;
+  margin: 50px 72px 110px;
+  padding: 96px 40px;
   text-align: center;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #22301f 0%, #2e4030 55%, #43372a 100%);
+  color: #f7f6f1;
+}
+
+.finalCta > * {
+  position: relative;
+  z-index: 1;
 }
 
 .finalCta h2 {
@@ -779,9 +1038,43 @@
 
 .finalCta p {
   font-size: 17px;
-  color: #6b6b66;
+  color: rgba(247, 246, 241, 0.72);
   font-weight: 300;
   margin: 0 0 30px;
+}
+
+/* Vệt sáng bồng bềnh trong panel CTA. */
+.ctaGlow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ctaGlowA {
+  width: 380px;
+  height: 380px;
+  left: -90px;
+  top: -130px;
+  background: rgba(122, 158, 126, 0.38);
+}
+
+.ctaGlowB {
+  width: 320px;
+  height: 320px;
+  right: -80px;
+  bottom: -150px;
+  background: rgba(181, 118, 74, 0.32);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ctaGlowA {
+    animation: blobFloat 12s ease-in-out infinite;
+  }
+  .ctaGlowB {
+    animation: blobFloat 16s ease-in-out infinite reverse;
+  }
 }
 
 /* ---------- Responsive ---------- */
@@ -795,19 +1088,27 @@
   .lead {
     font-size: 17px;
   }
-  .section,
+  .section {
+    padding: 64px 24px;
+  }
   .finalCta {
+    margin: 24px 16px 64px;
     padding: 64px 24px;
   }
   .sectionTitle {
     font-size: 32px;
   }
   .trackGrid,
+  .stepsGrid,
   .featuresGrid,
   .gamifyGrid,
   .quoteGrid {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+  /* Xếp dọc thì bỏ nét đứt nối các bước. */
+  .stepCard::after {
+    display: none;
   }
   .featuresGrid {
     gap: 36px;

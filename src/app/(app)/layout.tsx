@@ -13,7 +13,7 @@ export default function AppLayout({
       {/* Outlet: nội dung từng route render ở đây (full-width; trang tự đặt container) */}
       <main className="flex-1">{children}</main>
       <Footer />
-      {/* Nút nổi trò chuyện với Bo — hiện trên mọi trang */}
+      {/* Nút nổi trò chuyện với Bo - hiện trên mọi trang */}
       <BoWidget />
     </div>
   );

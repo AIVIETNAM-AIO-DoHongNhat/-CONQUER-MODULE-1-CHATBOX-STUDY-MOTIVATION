@@ -20,7 +20,7 @@ interface ChatMsg {
 }
 
 const GREETING =
-  "Chào bạn! Mình là Bo — người bạn giữ lửa học tập của bạn. Hôm nay mình tiếp sức cho bạn điều gì nào? 🔥";
+  "Chào bạn! Mình là Bo - người bạn giữ lửa học tập của bạn. Hôm nay mình tiếp sức cho bạn điều gì nào? 🔥";
 
 // Gợi ý mở đầu, chỉ hiện khi cuộc trò chuyện mới có lời chào của Bo.
 const SUGGESTIONS = [
@@ -29,10 +29,10 @@ const SUGGESTIONS = [
   "Cùng đặt mục tiêu hôm nay",
 ];
 
-// Kho câu trả lời theo nhóm cảm xúc/ngữ cảnh — Bo luôn ấm áp và tiếp lửa.
+// Kho câu trả lời theo nhóm cảm xúc/ngữ cảnh - Bo luôn ấm áp và tiếp lửa.
 const REPLIES: Record<string, string[]> = {
   empathy: [
-    "Mình hiểu cảm giác đó mà. Nghỉ một hơi thật sâu nhé, rồi mình thử bắt đầu với việc nhỏ xíu trong 5 phút thôi — không cần hoàn hảo. 🌱",
+    "Mình hiểu cảm giác đó mà. Nghỉ một hơi thật sâu nhé, rồi mình thử bắt đầu với việc nhỏ xíu trong 5 phút thôi - không cần hoàn hảo. 🌱",
     "Có những ngày khó là chuyện bình thường. Bạn đã ngồi vào bàn là đã hơn hôm qua rồi đấy. Mình làm cùng nhau từng chút một nhé!",
     "Mệt thì cứ chậm lại một chút. Chọn đúng MỘT việc quan trọng nhất hôm nay thôi, phần còn lại để sau cũng được mà.",
   ],

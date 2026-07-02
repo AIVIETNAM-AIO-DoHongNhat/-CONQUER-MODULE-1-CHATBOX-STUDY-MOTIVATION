@@ -1,6 +1,6 @@
 "use client";
 
-// Bộ sưu tập huy hiệu: lưới các badge — đã mở thì sáng (tông lửa của app), chưa
+// Bộ sưu tập huy hiệu: lưới các badge - đã mở thì sáng (tông lửa của app), chưa
 // mở thì mờ + ổ khóa nhỏ, di chuột vào xem điều kiện cần đạt. Dữ liệu thật từ
 // /badges/ (mỗi badge kèm cờ is_unlocked / unlocked_at theo user hiện tại).
 

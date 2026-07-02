@@ -1,17 +1,17 @@
 # AIOtivation · Frontend
 
-Giao diện web của **AIOtivation** — phòng học ảo giúp bạn _học cùng nhau, giữ nhịp tập trung_. Xây bằng **Next.js (App Router) + React + TypeScript + Tailwind CSS v4**, kết nối backend Django REST.
+Giao diện web của **AIOtivation** - phòng học ảo giúp bạn _học cùng nhau, giữ nhịp tập trung_. Xây bằng **Next.js (App Router) + React + TypeScript + Tailwind CSS v4**, kết nối backend Django REST.
 
 ---
 
 ## Tính năng chính
 
-- **Phòng học ảo** — vào phòng, **gọi video/mic realtime** cùng thành viên (LiveKit), **đồng hồ đếm ngược** theo thời lượng dự kiến (preset 15/25/45/60/90′), ghi chú nhanh tự lưu.
-- **Công việc (Todos)** — checklist gắn theo phiên học, nút nổi mở nhanh ở mọi nơi.
-- **Mục tiêu & chuỗi học** — đặt mục tiêu phút/ngày, theo dõi **streak** kiểu Duolingo + lịch đóng góp kiểu GitHub.
-- **Bảng xếp hạng tuần** — podium top 3 + vị trí của bạn, tính theo tổng thời gian tập trung.
-- **Huy hiệu** — bộ sưu tập thành tích: badge đã mở thì sáng, chưa mở thì mờ kèm điều kiện.
-- **Bo** — linh vật "giữ lửa": nút nổi chat động viên, có trạng thái _đang nghĩ_, xuất hiện ở mọi trang.
+- **Phòng học ảo** - vào phòng, **gọi video/mic realtime** cùng thành viên (LiveKit), **đồng hồ đếm ngược** theo thời lượng dự kiến (preset 15/25/45/60/90′), ghi chú nhanh tự lưu.
+- **Công việc (Todos)** - checklist gắn theo phiên học, nút nổi mở nhanh ở mọi nơi.
+- **Mục tiêu & chuỗi học** - đặt mục tiêu phút/ngày, theo dõi **streak** kiểu Duolingo + lịch đóng góp kiểu GitHub.
+- **Bảng xếp hạng tuần** - podium top 3 + vị trí của bạn, tính theo tổng thời gian tập trung.
+- **Huy hiệu** - bộ sưu tập thành tích: badge đã mở thì sáng, chưa mở thì mờ kèm điều kiện.
+- **Bo** - linh vật "giữ lửa": nút nổi chat động viên, có trạng thái _đang nghĩ_, xuất hiện ở mọi trang.
 
 ---
 
@@ -142,14 +142,14 @@ toast.error("Có lỗi", "Email hoặc mật khẩu không đúng.");
 
 - Trong phòng học, client xin **token** qua `getLivekitToken(roomId)` ([`lib/api.ts`](./src/lib/api.ts)); backend ký token và trả kèm `wss URL`.
 - Media (video/mic) đi **thẳng client ↔ LiveKit Cloud**, không qua backend. `RoomShell` render tile video, dock bật/tắt cam-mic & toàn màn hình.
-- Không cần biến môi trường ở frontend — cấu hình `LIVEKIT_*` nằm ở **backend**. Nếu backend chưa cấu hình, khung video sẽ báo chưa kết nối.
+- Không cần biến môi trường ở frontend - cấu hình `LIVEKIT_*` nằm ở **backend**. Nếu backend chưa cấu hình, khung video sẽ báo chưa kết nối.
 
 ---
 
 ## Quy ước
 
 - Component tương tác cần `"use client"`; trang tĩnh để mặc định (server component).
-- Token/đường dẫn API tập trung ở `lib/api.ts` — không gọi `fetch` rải rác.
+- Token/đường dẫn API tập trung ở `lib/api.ts` - không gọi `fetch` rải rác.
 - Bảng màu thương hiệu: nền `#f7f6f1`, chữ `#1b1b19`, sage `#7a9e7e`, terracotta `#b5764a`.
 
 ---

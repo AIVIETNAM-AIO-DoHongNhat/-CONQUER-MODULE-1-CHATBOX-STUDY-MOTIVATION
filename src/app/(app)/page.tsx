@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CountUp from "@/components/CountUp";
 import Reveal from "@/components/Reveal";
 import ScrollToTop from "@/components/ScrollToTop";
 import {
@@ -68,9 +69,40 @@ function MicIcon({ off = false }: { off?: boolean }) {
 }
 
 const STATS = [
-  { num: "2.4K+", label: "Đang học mỗi ngày" },
-  { num: "68%", label: "Tăng giờ tập trung" },
-  { num: "12", label: "Track học chuyên môn" },
+  { value: 2.4, decimals: 1, suffix: "K+", label: "Đang học mỗi ngày" },
+  { value: 68, decimals: 0, suffix: "%", label: "Tăng giờ tập trung" },
+  { value: 12, decimals: 0, suffix: "", label: "Track học chuyên môn" },
+];
+
+// Dải chữ chạy ngang (marquee) - nhịp thở giữa stats và các section.
+const MARQUEE = [
+  "Deep Work",
+  "Pomodoro",
+  "Body Doubling",
+  "Research",
+  "Product",
+  "NonTech",
+  "Focus Streak",
+  "Học cùng nhau",
+];
+
+// Ba bước bắt đầu - cho người mới hình dung ngay luồng sử dụng.
+const STEPS = [
+  {
+    num: "1",
+    title: "Chọn phòng theo track",
+    text: "Vào phòng Research, Product hay NonTech - nơi mọi người đang tập trung vào cùng lĩnh vực với bạn.",
+  },
+  {
+    num: "2",
+    title: "Đặt hẹn giờ & bắt đầu",
+    text: "Chọn thời lượng Pomodoro, bật camera nếu muốn, và để cả phòng cùng giữ nhịp tập trung cho bạn.",
+  },
+  {
+    num: "3",
+    title: "Nhận tổng kết & XP",
+    text: "Kết thúc phiên, AI tổng kết mức tập trung - bạn nhận XP, giữ streak và leo bảng xếp hạng tuần.",
+  },
 ];
 
 const TRACKS = [
@@ -167,6 +199,8 @@ export default function LandingPage() {
       <div className={styles.inner}>
         {/* Hero */}
         <section className={styles.hero}>
+          <span className={`${styles.heroBlob} ${styles.heroBlobA}`} aria-hidden />
+          <span className={`${styles.heroBlob} ${styles.heroBlobB}`} aria-hidden />
           <Reveal>
             <div className={styles.eyebrow}>Phòng học ảo trong AIO</div>
             <h1 className={styles.title}>
@@ -185,6 +219,19 @@ export default function LandingPage() {
               <a href="#ai" className={styles.btnGhost}>
                 Cách hoạt động →
               </a>
+            </div>
+            <div className={styles.trustRow}>
+              <span className={styles.trustAvatars}>
+                {MEMBERS.map((m) => (
+                  <span key={m.name} style={{ background: m.color }}>
+                    {m.initial}
+                  </span>
+                ))}
+                <span style={{ background: "#9a8a6a" }}>2K</span>
+              </span>
+              <span className={styles.trustText}>
+                Cùng 2.400+ người đang giữ nhịp học mỗi ngày
+              </span>
             </div>
           </Reveal>
 
@@ -263,12 +310,30 @@ export default function LandingPage() {
           <div className={styles.stats}>
             {STATS.map((s) => (
               <div key={s.label} className={styles.stat}>
-                <div className={styles.statNum}>{s.num}</div>
+                <div className={styles.statNum}>
+                  <CountUp value={s.value} decimals={s.decimals} suffix={s.suffix} />
+                </div>
                 <div className={styles.statLabel}>{s.label}</div>
               </div>
             ))}
           </div>
         </Reveal>
+
+        {/* Marquee - dải từ khóa chạy ngang */}
+        <div className={styles.marquee} aria-hidden>
+          <div className={styles.marqueeTrack}>
+            {[0, 1].map((group) => (
+              <div key={group} className={styles.marqueeGroup}>
+                {MARQUEE.map((word) => (
+                  <span key={word} className={styles.marqueeItem}>
+                    <i />
+                    {word}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Tracks */}
         <section id="phong-hoc" className={styles.section}>
@@ -307,6 +372,31 @@ export default function LandingPage() {
                     />
                     {t.meta}
                   </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section className={`${styles.section} ${styles.sectionBordered}`}>
+          <Reveal>
+            <div className={styles.sectionHead}>
+              <div>
+                <div className={styles.kicker}>Bắt đầu trong 30 giây</div>
+                <h2 className={styles.sectionTitle}>
+                  Ba bước để <strong>vào guồng tập trung</strong>
+                </h2>
+              </div>
+            </div>
+          </Reveal>
+          <div className={styles.stepsGrid}>
+            {STEPS.map((s, i) => (
+              <Reveal key={s.num} delay={i * 120} className={styles.revealFill}>
+                <div className={styles.stepCard}>
+                  <div className={styles.stepNum}>{s.num}</div>
+                  <h3 className={styles.stepTitle}>{s.title}</h3>
+                  <p className={styles.stepText}>{s.text}</p>
                 </div>
               </Reveal>
             ))}
@@ -466,11 +556,13 @@ export default function LandingPage() {
         {/* Final CTA */}
         <Reveal>
           <section className={styles.finalCta}>
+            <span className={`${styles.ctaGlow} ${styles.ctaGlowA}`} aria-hidden />
+            <span className={`${styles.ctaGlow} ${styles.ctaGlowB}`} aria-hidden />
             <h2>
               Bắt đầu phiên học <strong>đầu tiên</strong>
             </h2>
             <p>Miễn phí. Không cần thẻ. Vào phòng trong 30 giây.</p>
-            <Link href="/login" className={styles.btnPrimary}>
+            <Link href="/login" className={`${styles.btnPrimary} ${styles.btnLight}`}>
               Vào phòng học →
             </Link>
           </section>

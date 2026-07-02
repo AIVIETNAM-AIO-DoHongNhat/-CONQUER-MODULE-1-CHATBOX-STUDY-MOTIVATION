@@ -1,6 +1,6 @@
 "use client";
 
-// Nút nổi Bo — trò chuyện với linh vật từ mọi trang. Theo pattern TodoWidget:
+// Nút nổi Bo - trò chuyện với linh vật từ mọi trang. Theo pattern TodoWidget:
 // nút nổi mở/đóng popover, đóng khi click ra ngoài hoặc nhấn Esc. Đặt ở góc
 // dưới-TRÁI để không đụng các nút nổi góc phải (TodoWidget, ScrollToTop).
 //

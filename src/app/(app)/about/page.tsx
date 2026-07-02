@@ -6,7 +6,7 @@ import { FlameIcon, TargetIcon, MedalIcon, ZapIcon } from "@/components/icons";
 export const metadata: Metadata = {
   title: "Về chúng tôi · AIOtivation",
   description:
-    "Đội ngũ 5 người xây AIOtivation — không gian học ảo giúp bạn giữ nhịp tập trung.",
+    "Đội ngũ 5 người xây AIOtivation - không gian học ảo giúp bạn giữ nhịp tập trung.",
 };
 
 // 👉 Sửa tên / vai trò / mô tả / link của từng thành viên ở đây.
@@ -69,7 +69,7 @@ const VALUES = [
   {
     Icon: FlameIcon,
     title: "Bền bỉ",
-    text: "Tiến bộ đến từ thói quen nhỏ lặp lại — chúng tôi giúp bạn giữ lửa.",
+    text: "Tiến bộ đến từ thói quen nhỏ lặp lại - chúng tôi giúp bạn giữ lửa.",
   },
   {
     Icon: MedalIcon,
@@ -79,7 +79,7 @@ const VALUES = [
   {
     Icon: ZapIcon,
     title: "Tinh gọn",
-    text: "Không ồn ào, không xao nhãng — chỉ giữ lại điều thật sự cần thiết.",
+    text: "Không ồn ào, không xao nhãng - chỉ giữ lại điều thật sự cần thiết.",
   },
 ];
 
@@ -150,7 +150,7 @@ export default function AboutPage() {
             </h1>
             <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-[#5a5a55]">
               AIOtivation ra đời từ một trăn trở quen thuộc: học một mình rất dễ
-              bỏ cuộc. Chúng tôi xây một không gian học ảo yên tĩnh — nơi bạn vào
+              bỏ cuộc. Chúng tôi xây một không gian học ảo yên tĩnh - nơi bạn vào
               phòng, bật camera, và để AI lặng lẽ giữ nhịp tập trung cho bạn.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -204,12 +204,12 @@ export default function AboutPage() {
                 <p>
                   Chúng tôi tin rằng động lực không đến từ ý chí đơn độc, mà từ
                   môi trường đúng và những người đồng hành phù hợp. Vì thế mỗi
-                  chi tiết trong AIOtivation đều hướng tới sự tập trung — không
+                  chi tiết trong AIOtivation đều hướng tới sự tập trung - không
                   ồn ào, không xao nhãng.
                 </p>
                 <p>
-                  Là một nhóm 5 người với thế mạnh khác nhau — sản phẩm, kỹ
-                  thuật, AI và thiết kế — chúng tôi cùng nhau biến những phiên
+                  Là một nhóm 5 người với thế mạnh khác nhau - sản phẩm, kỹ
+                  thuật, AI và thiết kế - chúng tôi cùng nhau biến những phiên
                   học cô đơn thành hành trình có cộng đồng, có nhịp điệu và có
                   niềm vui.
                 </p>
@@ -328,7 +328,7 @@ export default function AboutPage() {
                 Cùng chúng tôi <strong className="font-semibold">giữ nhịp</strong>
               </h2>
               <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-[#f7f6f1]/70">
-                Vào phòng học đầu tiên của bạn — miễn phí, không cần thẻ, chỉ mất
+                Vào phòng học đầu tiên của bạn - miễn phí, không cần thẻ, chỉ mất
                 30 giây.
               </p>
               <Link

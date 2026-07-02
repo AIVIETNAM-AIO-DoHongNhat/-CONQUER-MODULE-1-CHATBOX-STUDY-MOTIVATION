@@ -8,11 +8,11 @@ export interface TimerProgress {
 }
 
 interface TimerProps {
-  // Mốc thời gian thực (ms) khi phiên bắt đầu — thường là
+  // Mốc thời gian thực (ms) khi phiên bắt đầu - thường là
   // Date.parse(session.started_at) từ backend. Timer suy ra thời gian còn lại
   // từ mốc này nên sống sót qua chuyển trang/refresh và vẫn tính đúng.
   epochMs: number;
-  // Thời lượng học dự kiến (giây) do người dùng chọn — đếm ngược đơn.
+  // Thời lượng học dự kiến (giây) do người dùng chọn - đếm ngược đơn.
   targetSeconds: number;
   // Bắn khi số phút focus đã trôi thay đổi (kể cả lần khôi phục đầu tiên).
   onProgress?: (info: TimerProgress) => void;

@@ -1,6 +1,6 @@
 "use client";
 
-// Bo — linh vật "giữ lửa" của AIOtivation: thân tròn gradient sage→terracotta
+// Bo - linh vật "giữ lửa" của AIOtivation: thân tròn gradient sage→terracotta
 // (đồng bộ với LogoMark), ngọn lửa nhỏ trên đầu là motif thương hiệu. `thinking`
 // đổi biểu cảm sang đang suy nghĩ (mắt nhìn lên) khi Bo đang soạn câu trả lời.
 
@@ -34,7 +34,7 @@ export function BoMascot({ size = 40, thinking = false, className }: BoMascotPro
       {/* Thân tròn */}
       <circle cx="24" cy="27" r="16" fill={`url(#${gradId})`} />
 
-      {/* Ngọn lửa trên đầu — motif "giữ lửa" */}
+      {/* Ngọn lửa trên đầu - motif "giữ lửa" */}
       <path
         d="M24 3.5c1.8 2.6 3.4 3.8 3.4 6.3a3.4 3.4 0 0 1-6.8 0c0-1.1.5-2 1.2-2.8C23 10.4 23.6 8.2 24 3.5Z"
         fill="#f6c89a"

@@ -1,6 +1,6 @@
 # Dependencies · Frontend (AIOtivation)
 
-> Tài liệu tham khảo. **Nguồn dependency chính thức là [`package.json`](./package.json) + `package-lock.json`** — cài đặt bằng `npm install` (đây là dự án Next.js/Node, không dùng `pip`).
+> Tài liệu tham khảo. **Nguồn dependency chính thức là [`package.json`](./package.json) + `package-lock.json`** - cài đặt bằng `npm install` (đây là dự án Next.js/Node, không dùng `pip`).
 
 ## Môi trường chạy
 

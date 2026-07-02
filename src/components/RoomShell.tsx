@@ -358,7 +358,7 @@ function FallbackTiles({ error }: { error: boolean }) {
     <div className="bg-[#fbfaf6] p-4">
       <div className="flex aspect-video items-center justify-center rounded-2xl border border-dashed border-[#e0ddd3] bg-[#f1f0ea] px-4 text-center text-sm text-[#b0aea6]">
         {error
-          ? "Video chưa sẵn sàng — LiveKit chưa được cấu hình trên server."
+          ? "Video chưa sẵn sàng - LiveKit chưa được cấu hình trên server."
           : "Đang chuẩn bị video…"}
       </div>
     </div>
@@ -400,7 +400,7 @@ function FallbackMembers({ count, error }: { count: number; error: boolean }) {
       </div>
       <p className="mt-3 text-xs text-[#b0aea6]">
         {error
-          ? "Danh sách thời gian thực cần LiveKit — đang dùng số liệu từ server."
+          ? "Danh sách thời gian thực cần LiveKit - đang dùng số liệu từ server."
           : "Đang kết nối phòng…"}
       </p>
     </div>
@@ -434,7 +434,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
   const [targetSeconds, setTargetSeconds] = useState<number | null>(null);
   // Hộp thoại "Học tiếp?" khi hết giờ đếm ngược.
   const [showContinue, setShowContinue] = useState(false);
-  // Id phòng đang có phiên chạy khác phòng này (nếu có) — chặn học chồng phiên.
+  // Id phòng đang có phiên chạy khác phòng này (nếu có) - chặn học chồng phiên.
   const [otherRoomId, setOtherRoomId] = useState<number | null>(null);
   // Kết nối LiveKit (token + wss URL) cho phòng này. null khi chưa lấy được:
   // đang tải, hoặc LiveKit chưa cấu hình trên server (khi đó lkError=true → fallback).
@@ -455,7 +455,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
   // để finishSession/handleLeave luôn đọc được giá trị mới nhất.
   const focusMinutesRef = useRef(0);
 
-  // Ghi chú nhanh — nâng state lên đây để sidebar và panel toàn màn hình dùng
+  // Ghi chú nhanh - nâng state lên đây để sidebar và panel toàn màn hình dùng
   // CHUNG một nguồn, không lệch nội dung khi chuyển qua lại. Tự lưu localStorage
   // theo từng phòng (debounce).
   const notesKey = `room-notes:${String(sessionId ?? "default")}`;
@@ -698,9 +698,11 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
     }
   }, []);
 
-  // Đang ở trong phòng (đã vào, chưa kết thúc) thì khóa điều hướng để không mất
-  // nhịp/thời gian phiên. Chỉ nút "Rời phòng" (đặt leavingRef) mới thoát được.
-  const guardActive = authOk === true && sessionState !== "ended";
+  // Chỉ khóa điều hướng khi đồng hồ đếm ngược đang chạy (active) hoặc đang lưu
+  // phiên (ending) - lúc đó rời trang mới làm mất thời gian đã học. Còn lúc
+  // setup/busy (chưa bấm bắt đầu) người dùng vẫn đi lại tự do.
+  const guardActive =
+    authOk === true && (sessionState === "active" || sessionState === "ending");
 
   // Toast nhắc người dùng phải bấm "Rời phòng", có cooldown tránh spam.
   const warnBlocked = useCallback(() => {
@@ -709,19 +711,23 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
     lastWarnRef.current = now;
     toast.warning(
       "Bạn đang ở trong phòng học",
-      'Hãy nhấn "Rời phòng" để kết thúc phiên trước khi rời đi — tránh mất thời gian đã học.',
+      'Hãy nhấn "Rời phòng" để kết thúc phiên trước khi rời đi - tránh mất thời gian đã học.',
     );
   }, [toast]);
 
   useEffect(() => {
-    if (!guardActive) return;
+    if (!guardActive) {
+      // Hết khóa (phiên kết thúc / quay lại setup) → hiệp sau sẽ báo lại.
+      guardAnnouncedRef.current = false;
+      return;
+    }
 
-    // Báo một lần khi khóa điều hướng bắt đầu có hiệu lực.
+    // Báo một lần mỗi khi khóa điều hướng bắt đầu có hiệu lực.
     if (!guardAnnouncedRef.current) {
       guardAnnouncedRef.current = true;
       toast.info(
         "Đã khóa rời trang",
-        'Để giữ đúng thời gian học, bạn chỉ có thể ra ngoài bằng nút "Rời phòng".',
+        'Đếm ngược đã bắt đầu - bạn chỉ có thể ra ngoài bằng nút "Rời phòng" để không mất thời gian đã học.',
       );
     }
 
@@ -786,7 +792,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
               : "flex flex-col overflow-hidden rounded-3xl border border-[#e8e6df] bg-white shadow-sm"
           }
         >
-          {/* Cột video — chiếm hết bề ngang lúc thường, chia sẻ với panel khi fullscreen */}
+          {/* Cột video - chiếm hết bề ngang lúc thường, chia sẻ với panel khi fullscreen */}
           <div className="flex min-w-0 flex-1 flex-col">
             {/* Header */}
             <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#efece4] px-5 py-4">
@@ -821,7 +827,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
               </div>
             </header>
 
-            {/* Lưới participant tiles — giãn đầy chiều cao khi fullscreen */}
+            {/* Lưới participant tiles - giãn đầy chiều cao khi fullscreen */}
             <div className={isFullscreen ? "min-h-0 flex-1 overflow-y-auto" : ""}>
               {lk ? <LiveTiles /> : <FallbackTiles error={lkError} />}
             </div>
@@ -834,7 +840,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
             )}
           </div>
 
-          {/* Panel bên phải — chỉ khi toàn màn hình: chat Bo + ghi chú nhanh */}
+          {/* Panel bên phải - chỉ khi toàn màn hình: chat Bo + ghi chú nhanh */}
           {isFullscreen && (
             <aside className="flex w-[24rem] shrink-0 flex-col border-l border-[#efece4] bg-[#f5f3ec]">
               {/* Tabs chuyển giữa Bo và Ghi chú */}
@@ -858,7 +864,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
                 ))}
               </div>
 
-              {/* Nội dung — mount cả hai, chỉ ẩn/hiện để giữ nguyên trạng thái */}
+              {/* Nội dung - mount cả hai, chỉ ẩn/hiện để giữ nguyên trạng thái */}
               <div className="min-h-0 flex-1 p-3">
                 <div className={`h-full ${fsPanel === "bo" ? "" : "hidden"}`}>
                   <BoChat />
@@ -874,7 +880,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
 
       {/* ── Sidebar ───────────────────────────────────────────────────── */}
       <aside className="flex flex-col gap-5">
-        {/* Bảng điều khiển phiên — timer + rời phòng gọn trên cùng */}
+        {/* Bảng điều khiển phiên - timer + rời phòng gọn trên cùng */}
         <div className="rounded-3xl border border-[#e8e6df] bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-2">
             <span
@@ -897,7 +903,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
             <div className="mt-3">
               <p className="text-sm text-[#6b6b66]">
                 Bạn đang có một phiên học ở phòng khác. Mỗi lúc chỉ học được một
-                phòng — hãy quay lại phòng đó, hoặc kết thúc để học ở đây.
+                phòng - hãy quay lại phòng đó, hoặc kết thúc để học ở đây.
               </p>
               <div className="mt-3 flex flex-col gap-2">
                 {otherRoomId !== null && (
@@ -959,15 +965,15 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
         <QuickNotes value={notes} onChange={setNotes} saved={notesSaved} />
       </aside>
 
-      {/* Checklist công việc — nút nổi góc phải, mở popover (API /api/v1/todos/) */}
+      {/* Checklist công việc - nút nổi góc phải, mở popover (API /api/v1/todos/) */}
       <TodoWidget />
 
-      {/* Hộp thoại thiết lập thời lượng — hiện ngay khi vào phòng, chọn xong bấm
+      {/* Hộp thoại thiết lập thời lượng - hiện ngay khi vào phòng, chọn xong bấm
           OK để bắt đầu đồng hồ Pomodoro đếm ngược. */}
       {sessionState === "setup" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1b1b19]/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm overflow-hidden rounded-[28px] border border-[#ece9e1] bg-white shadow-[0_30px_80px_-30px_rgba(27,27,25,0.55)]">
-            {/* Đầu hộp thoại — icon + tiêu đề trên nền gradient nhẹ */}
+        <div className="modalOverlay fixed inset-0 z-50 flex items-center justify-center bg-[#1b1b19]/45 p-4">
+          <div className="modalCard w-full max-w-sm overflow-hidden rounded-[28px] border border-[#ece9e1] bg-white shadow-[0_30px_80px_-30px_rgba(27,27,25,0.55)]">
+            {/* Đầu hộp thoại - icon + tiêu đề trên nền gradient nhẹ */}
             <div className="bg-linear-to-b from-[#f1f6f1] to-white px-6 pt-7 pb-5 text-center">
               <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#5f8a64] shadow-sm ring-1 ring-[#dfeae0]">
                 <HourglassIcon className="hourglassFlip" />
@@ -980,7 +986,7 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
               </p>
             </div>
 
-            {/* Thân — chọn thời lượng + hành động */}
+            {/* Thân - chọn thời lượng + hành động */}
             <div className="px-6 pb-6">
               <DurationPicker actionLabel="Bắt đầu tập trung" onPick={(m) => void beginSession(m)} />
               <button
@@ -997,8 +1003,8 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
 
       {/* Hộp thoại "Học tiếp?" khi hết giờ đếm ngược */}
       {showContinue && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-          <div className="w-full max-w-sm rounded-3xl border border-[#e8e6df] bg-white p-6 shadow-xl">
+        <div className="modalOverlay fixed inset-0 z-50 flex items-center justify-center bg-[#1b1b19]/45 p-4">
+          <div className="modalCard w-full max-w-sm rounded-3xl border border-[#e8e6df] bg-white p-6 shadow-xl">
             <h3 className="text-base font-bold tracking-tight text-[#1b1b19]">
               Hết giờ tập trung 🎉
             </h3>
@@ -1065,7 +1071,7 @@ function DurationPicker({
   onPick: (minutes: number) => void;
   disabled?: boolean;
 }) {
-  // Preset đang chọn (mặc định 25 phút — nhịp Pomodoro kinh điển).
+  // Preset đang chọn (mặc định 25 phút - nhịp Pomodoro kinh điển).
   const [preset, setPreset] = useState<number>(25);
   const [custom, setCustom] = useState("");
   const customVal = parseInt(custom, 10);
@@ -1101,7 +1107,7 @@ function DurationPicker({
           );
         })}
 
-        {/* Ô nhập số phút tuỳ ý — chiếm trọn 1 hàng dưới lưới preset */}
+        {/* Ô nhập số phút tuỳ ý - chiếm trọn 1 hàng dưới lưới preset */}
         <div
           className={`col-span-3 flex items-center rounded-2xl border bg-white px-3 transition-colors ${
             customValid
@@ -1171,7 +1177,7 @@ function DockButton({
   );
 }
 
-/* ── Ghi chú nhanh — component trình bày, state do RoomShell giữ (dùng chung
+/* ── Ghi chú nhanh - component trình bày, state do RoomShell giữ (dùng chung
    cho sidebar và panel toàn màn hình, tự lưu localStorage ở phía cha) ──────── */
 function QuickNotes({
   value: text,

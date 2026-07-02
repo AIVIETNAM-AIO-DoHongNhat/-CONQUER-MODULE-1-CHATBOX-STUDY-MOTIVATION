@@ -279,7 +279,7 @@ export async function getActiveSession(): Promise<StudySession | null> {
   }
 }
 
-// Bắt đầu phiên trong một phòng cụ thể — backend yêu cầu room_id. plannedMinutes
+// Bắt đầu phiên trong một phòng cụ thể - backend yêu cầu room_id. plannedMinutes
 // là thời lượng học dự kiến do người dùng chọn (đếm ngược đơn); bỏ trống thì
 // backend dùng mặc định.
 export function startSession(
@@ -472,7 +472,7 @@ export interface LeaderboardEntry {
 }
 
 // Bảng xếp hạng tuần (gamify.WeeklyLeaderboardSerializer). current_user là dòng
-// của chính người đang đăng nhập (kể cả khi nằm ngoài top) — null nếu tuần này
+// của chính người đang đăng nhập (kể cả khi nằm ngoài top) - null nếu tuần này
 // chưa có phiên học nào được tính.
 export interface WeeklyLeaderboard {
   week: { start: string; end: string };
