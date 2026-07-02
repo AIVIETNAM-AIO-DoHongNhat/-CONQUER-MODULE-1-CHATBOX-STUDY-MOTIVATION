@@ -154,10 +154,11 @@ toast.error("Có lỗi", "Email hoặc mật khẩu không đúng.");
 
 ---
 
-## Chạy bằng Docker (tùy chọn)
+## Chạy cùng backend
 
-Toàn bộ stack (frontend + backend + Postgres) có thể chạy bằng `docker-compose.yaml` ở thư mục gốc dự án:
+Frontend luôn chạy bằng `npm run dev` (http://localhost:3000). Backend có 2 cách chạy:
 
-```bash
-docker compose up -d        # frontend: http://localhost:3000
-```
+- **Local**: `python manage.py runserver` trong thư mục `backend` (xem [`backend/README.md`](../backend/README.md)).
+- **Docker**: `docker compose up -d` trong thư mục `backend` — compose chỉ chứa **Postgres + backend**, không chứa frontend.
+
+Cả 2 cách backend đều chạy tại `http://localhost:8000` — khớp với `NEXT_PUBLIC_API_URL` mặc định.

@@ -138,8 +138,11 @@ python manage.py test
 
 ## Chạy bằng Docker (tùy chọn)
 
-Toàn bộ stack (backend + frontend + Postgres) chạy bằng `docker-compose.yaml` ở thư mục gốc dự án:
+`docker-compose.yaml` ở thư mục này chạy **Postgres + backend** (service `db` + `web`). Frontend chạy riêng bằng `npm run dev` (xem [`frontend/README.md`](../frontend/README.md)).
 
 ```sh
-docker compose up -d
+# Trong .env đặt DATABASE_HOST=db và DATABASE_PORT=5432
+docker compose up -d --build   # backend: http://localhost:8000
 ```
+
+Lưu ý: Postgres được expose ra host ở cổng **5433** (tránh đụng Postgres cài sẵn); container `web` vẫn kết nối qua `db:5432`. Service `web` tự chạy `migrate` khi khởi động.
