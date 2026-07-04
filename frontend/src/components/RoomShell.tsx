@@ -429,6 +429,39 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   // Tab đang mở ở panel bên phải khi toàn màn hình: trợ lý Bo hoặc ghi chú nhanh.
   const [fsPanel, setFsPanel] = useState<"bo" | "notes">("bo");
+  // Độ rộng (px) panel bên phải khi toàn màn hình - kéo được, nhớ ở localStorage.
+  const PANEL_MIN = 280;
+  const PANEL_DEFAULT = 384;
+  const [panelWidth, setPanelWidth] = useState(PANEL_DEFAULT);
+  const panelWidthRef = useRef(PANEL_DEFAULT);
+  useEffect(() => {
+    const v = Number(window.localStorage.getItem("room-panel-width"));
+    if (v >= PANEL_MIN) {
+      setPanelWidth(v);
+      panelWidthRef.current = v;
+    }
+  }, []);
+  // Bắt đầu kéo cạnh trái panel: cập nhật độ rộng theo con trỏ tới khi thả.
+  const startPanelResize = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    const onMove = (ev: PointerEvent) => {
+      const max = Math.round(window.innerWidth * 0.75);
+      const w = Math.min(Math.max(window.innerWidth - ev.clientX, PANEL_MIN), max);
+      panelWidthRef.current = w;
+      setPanelWidth(w);
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      window.localStorage.setItem("room-panel-width", String(panelWidthRef.current));
+    };
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }, []);
   const [focusMinutes, setFocusMinutes] = useState(0);
   // Thời lượng đếm ngược (giây) của phiên hiện tại, do người dùng chọn.
   const [targetSeconds, setTargetSeconds] = useState<number | null>(null);
@@ -840,9 +873,31 @@ export default function RoomShell({ sessionId }: RoomShellProps) {
             )}
           </div>
 
+          {/* Thanh kéo đổi độ rộng panel - chỉ khi toàn màn hình */}
+          {isFullscreen && (
+            <div
+              onPointerDown={startPanelResize}
+              onDoubleClick={() => {
+                setPanelWidth(PANEL_DEFAULT);
+                panelWidthRef.current = PANEL_DEFAULT;
+                window.localStorage.setItem("room-panel-width", String(PANEL_DEFAULT));
+              }}
+              role="separator"
+              aria-orientation="vertical"
+              title="Kéo để đổi độ rộng · nhấp đúp để đặt lại"
+              className="group relative w-1.5 shrink-0 cursor-col-resize touch-none bg-[#efece4] transition-colors hover:bg-[#d8e0d9]"
+            >
+              <span className="pointer-events-none absolute inset-y-0 left-1/2 flex -translate-x-1/2 items-center">
+                <span className="h-9 w-0.5 rounded-full bg-[#c9c6bd] transition-colors group-hover:bg-[#7a9e7e]" />
+              </span>
+            </div>
+          )}
+
           {/* Panel bên phải - chỉ khi toàn màn hình: chat Bo + ghi chú nhanh */}
           {isFullscreen && (
-            <aside className="flex w-[24rem] shrink-0 flex-col border-l border-[#efece4] bg-[#f5f3ec]">
+            <aside
+              style={{ width: panelWidth }}
+              className="flex shrink-0 flex-col bg-[#f5f3ec]">
               {/* Tabs chuyển giữa Bo và Ghi chú */}
               <div className="flex gap-1 border-b border-[#efece4] p-2">
                 {([

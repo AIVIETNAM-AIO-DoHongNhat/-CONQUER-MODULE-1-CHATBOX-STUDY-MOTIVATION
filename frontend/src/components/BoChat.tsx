@@ -94,9 +94,109 @@ function MinimizeIcon({ size = 18 }: { size?: number }) {
 }
 
 /* ── Bong bóng chat ────────────────────────────────────────────────────── */
+const YOUTUBE_RE =
+  /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/;
+
 function extractYoutubeId(text: string): string | null {
-  const match = text.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/);
+  const match = text.match(YOUTUBE_RE);
   return match ? match[1] : null;
+}
+
+/* ── Render Markdown nhẹ ────────────────────────────────────────────────── */
+// Bo trả lời dạng Markdown (**đậm**, *nghiêng*, `code`, danh sách). Ở đây render
+// đúng các dạng đó thành HTML, tránh kéo thêm thư viện.
+
+// Cắt inline: **đậm**, *nghiêng*, `code`.
+function renderInline(text: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = [];
+  const re = /\*\*([^*]+)\*\*|\*([^*\n]+)\*|`([^`]+)`/g;
+  let last = 0;
+  let key = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    if (m[1] !== undefined) {
+      nodes.push(<strong key={key++} className="font-semibold">{m[1]}</strong>);
+    } else if (m[2] !== undefined) {
+      nodes.push(<em key={key++}>{m[2]}</em>);
+    } else if (m[3] !== undefined) {
+      nodes.push(
+        <code key={key++} className="rounded bg-black/5 px-1 py-0.5 text-[0.9em] font-mono">
+          {m[3]}
+        </code>,
+      );
+    }
+    last = re.lastIndex;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
+// Gom dòng thành khối: đoạn văn, danh sách gạch đầu dòng, danh sách đánh số.
+function FormattedText({ text }: { text: string }) {
+  const blocks: React.ReactNode[] = [];
+  let para: string[] = [];
+  let items: string[] = [];
+  let listOrdered = false;
+  let key = 0;
+
+  const flushPara = () => {
+    if (para.length) {
+      blocks.push(
+        <p key={key++} className="whitespace-pre-line">
+          {renderInline(para.join("\n"))}
+        </p>,
+      );
+      para = [];
+    }
+  };
+  const flushList = () => {
+    if (items.length) {
+      const cls = "my-1 space-y-1 pl-5 " + (listOrdered ? "list-decimal" : "list-disc");
+      blocks.push(
+        listOrdered ? (
+          <ol key={key++} className={cls}>
+            {items.map((it, i) => (
+              <li key={i}>{renderInline(it)}</li>
+            ))}
+          </ol>
+        ) : (
+          <ul key={key++} className={cls}>
+            {items.map((it, i) => (
+              <li key={i}>{renderInline(it)}</li>
+            ))}
+          </ul>
+        ),
+      );
+      items = [];
+    }
+  };
+
+  for (const line of text.split("\n")) {
+    const bullet = line.match(/^\s*[-*•]\s+(.*)$/);
+    const numbered = line.match(/^\s*\d+\.\s+(.*)$/);
+    if (bullet) {
+      flushPara();
+      if (items.length && listOrdered) flushList();
+      listOrdered = false;
+      items.push(bullet[1]);
+    } else if (numbered) {
+      flushPara();
+      if (items.length && !listOrdered) flushList();
+      listOrdered = true;
+      items.push(numbered[1]);
+    } else if (line.trim() === "") {
+      flushPara();
+      flushList();
+    } else {
+      flushList();
+      para.push(line);
+    }
+  }
+  flushPara();
+  flushList();
+
+  return <div className="space-y-2">{blocks}</div>;
 }
 
 function YoutubeCard({ videoId }: { videoId: string }) {
@@ -130,6 +230,8 @@ function YoutubeCard({ videoId }: { videoId: string }) {
 function MessageRow({ msg }: { msg: ChatMsg }) {
   const isBo = msg.role === "bo";
   const youtubeId = extractYoutubeId(msg.text);
+  // Bỏ URL YouTube thô khỏi văn bản vì đã có thẻ video hiển thị bên dưới.
+  const displayText = youtubeId ? msg.text.replace(YOUTUBE_RE, "").trim() : msg.text;
 
   return (
     <div className={`boBubble flex items-end gap-2.5 ${isBo ? "" : "flex-row-reverse"}`}>
@@ -139,13 +241,13 @@ function MessageRow({ msg }: { msg: ChatMsg }) {
         </span>
       )}
       <div
-        className={`max-w-[82%] whitespace-pre-wrap break-words px-4 py-2.5 text-[15px] leading-relaxed ${
+        className={`max-w-[82%] break-words px-4 py-2.5 text-[15px] leading-relaxed ${
           isBo
             ? "rounded-2xl rounded-bl-md bg-[#f1f0ea] text-[#1b1b19]"
             : "rounded-2xl rounded-br-md bg-[#1b1b19] text-[#f7f6f1]"
         }`}
       >
-        <div>{msg.text}</div>
+        {displayText && <FormattedText text={displayText} />}
         {youtubeId && <YoutubeCard videoId={youtubeId} />}
       </div>
     </div>
